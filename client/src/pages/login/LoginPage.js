@@ -17,10 +17,13 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const response = await API.post('/auth/login', formData);
-      localStorage.setItem('token', response.data.token); // Save token to localStorage
-      navigate('/'); // Redirect to home page after login
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token)
+        navigate('/');
+      }
     } catch (error) {
       console.error('Login failed:', error.response?.data?.msg || error.message);
+      alert(error.response?.data?.msg)
     }
   };
 

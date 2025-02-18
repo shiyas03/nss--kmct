@@ -1,23 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import API from '../../services/api';
 import "./home.css";
 
+
 const HomePage = () => {
-  const [events, setEvents] = useState([]);
-
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await API.get('/events');
-        setEvents(response.data);
-      } catch (error) {
-        console.error('Failed to fetch events:', error.response?.data?.msg || error.message);
-      }
-    };
-
-    fetchEvents();
-  }, []);
-
   return (
     <div className="home-container">
       <div className="left-side">
@@ -40,23 +24,6 @@ const HomePage = () => {
         <p>The National Service Scheme (NSS) at KMCT Arts and Science College is a part of the nationwide NSS program initiated by the Government of India. The NSS aims to promote a sense of social responsibility and leadership among students by engaging them in community service and development activities.
           At KMCT Arts and Science College, the NSS unit typically undertakes a variety of activities that contribute to social welfare and personal development.</p>
 
-      </div>
-      <div>
-        <h1>Upcoming Events</h1>
-        {events.length > 0 ? (
-          <ul>
-            {events.map((event) => (
-              <li key={event._id}>
-                <h2>{event.title}</h2>
-                <p>{event.description}</p>
-                <p>Date: {new Date(event.date).toLocaleDateString()}</p>
-                <p>Location: {event.location}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No events found.</p>
-        )}
       </div>
     </div>
   );

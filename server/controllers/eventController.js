@@ -33,4 +33,42 @@ const getEvents = async (req, res) => {
   }
 };
 
-module.exports = { createEvent, getEvents };
+// Participate in an event
+const participateInEvent = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.eventId);
+    if (!event) {
+      return res.status(404).json({ msg: 'Event not found' });
+    }
+
+    // Check if the user is already a participant
+    if (event.participants.includes(req.user.id)) {
+      return res.status(400).json({ msg: 'You are already participating in this event' });
+    }
+
+    event.participants.push(req.user.id);
+    await event.save();
+    res.json(event);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+const generateEventReport = async (req, res) => {
+  try {
+    const events = await Event.find().populate('organizer', 'name').populate('participants', 'name');
+    const report = events.map((event) => ({
+      title: event.title,
+      date: event.date,
+      organizer: event.organizer.name,
+      participants: event.participants.map((participant) => participant.name),
+    }));
+    res.json(report);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+module.exports = { createEvent, getEvents, participateInEvent, generateEventReport };

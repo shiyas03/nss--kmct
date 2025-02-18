@@ -1,6 +1,7 @@
 import React from 'react';
 import "./activities.css";
-const Activities = () => {
+
+const ActivitiesPage = () => {
   return (
     <div className="about-container">
       <section className="about-header">
@@ -36,4 +37,4 @@ const Activities = () => {
   );
 };
 
-export default Activities;
+export default ActivitiesPage;

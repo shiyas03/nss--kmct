@@ -7,7 +7,7 @@ const RegisterPage = () => {
     name: '',
     email: '',
     password: '',
-    role: 'volunteer', // Default role is volunteer
+    role: 'volunteer',
   });
   const navigate = useNavigate();
 
@@ -19,8 +19,8 @@ const RegisterPage = () => {
     e.preventDefault();
     try {
       const response = await API.post('/auth/register', formData);
-      localStorage.setItem('token', response.data.token); // Save token to localStorage
-      navigate('/'); // Redirect to home page after registration
+      localStorage.setItem('token', response.data.token);
+      navigate('/login');
     } catch (error) {
       console.error('Registration failed:', error.response?.data?.msg || error.message);
     }

@@ -1,12 +1,18 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";  // Use Link for navigation
+import { Link, useNavigate } from "react-router-dom";  // Use Link for navigation
 import "./NavBar.css";
 
-const NavBar = () => {
+const NavBar = ({ user }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
   };
 
   return (
@@ -21,20 +27,39 @@ const NavBar = () => {
         </a>
       </div>
 
-      <div className={`navbar-links ${isMenuOpen ? "active" : ""}`}>
-        <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
-        <Link to="/activities">Activities</Link>
-        <Link to="/contact">Contact</Link>
-      </div>
+      {user?.role !== 'admin' &&
+        <div className={`navbar-links ${isMenuOpen ? "active" : ""}`}>
+          <Link to="/">Home</Link>
+          {
+            user?.role &&
+            <Link to="/events">Events</Link>
+          }
+          <Link to="/about">About</Link>
+          <Link to="/activities">Activities</Link>
+          <Link to="/contact">Contact</Link>
+        </div>
+      }
+
+      {
+        user?.role === 'admin' &&
+        <div className={`navbar-links ${isMenuOpen ? "active" : ""}`}>
+          <Link to="/admin/volunteers">Volunteers</Link>
+        </div>
+      }
 
       <div className="login-donate-container">
-        <Link to="/login">
-          <button className="btn login">Login</button>
-        </Link>
-        <Link to="/register">
-          <button className="btn login">Register</button>
-        </Link>
+        {!user &&
+          <Link to="/login">
+            <button className="btn login">Login</button>
+          </Link>
+        }
+        {/* {!user &&
+
+          <Link to="/register">
+            <button className="btn login">Register</button>
+          </Link>
+        } */}
+        {user && <button onClick={handleLogout}>Logout</button>}
         {/* <Link to='/donate'>
           <button className="btn donate">Donate</button>
         </Link> */}

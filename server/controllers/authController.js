@@ -2,18 +2,15 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-// Register a new user
 const register = async (req, res) => {
   const { name, email, password, role } = req.body;
 
   try {
-    // Check if user already exists
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ msg: 'User already exists' });
     }
 
-    // Create a new user
     user = new User({
       name,
       email,
@@ -21,14 +18,11 @@ const register = async (req, res) => {
       role,
     });
 
-    // Hash the password
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
 
-    // Save the user to the database
     await user.save();
 
-    // Generate JWT token
     const payload = {
       user: {
         id: user.id,
@@ -51,24 +45,24 @@ const register = async (req, res) => {
   }
 };
 
-// Login user
 const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Check if user exists
     let user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+      return res.status(400).json({ msg: 'Invalid Email' });
     }
 
-    // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+      return res.status(400).json({ msg: 'Invalid Password' });
     }
 
-    // Generate JWT token
+    if (user.isApproved === false) {
+      return res.status(400).json({ msg: 'You do not have access' });
+    }
+
     const payload = {
       user: {
         id: user.id,
@@ -91,4 +85,17 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    return res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+module.exports = { register, login, getMe };
