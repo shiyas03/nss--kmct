@@ -1,0 +1,22 @@
+.about-container {
+    margin-top: 60px; /* Adjust based on the navbar height */
+    padding: 20px;
+  }
+.row{
+    margin-left:20px;
+    color:black;
+
+}
+.posters{
+  display: flex;
+  padding: 20px;
+  overflow-x: scroll;
+  overflow-y: hidden;
+}
+.posters::-webkit-scrollbar{
+    display: none;
+}
+.poster{
+    max-height: 250px;
+    margin-right: 10px;
+}

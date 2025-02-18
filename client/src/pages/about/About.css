@@ -1,0 +1,89 @@
+/* About.css */
+
+/* Overall container for the About page */
+.about-container {
+    padding: 40px;
+    background-color: #f9f9f9;
+  }
+  
+  /* Header section */
+  .about-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .about-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .about-header p {
+    font-size: 1.2rem;
+    color: #555;
+  }
+  
+  /* About details section */
+  .about-details {
+    margin-bottom: 30px;
+  }
+  
+  .about-details h2 {
+    font-size: 2rem;
+    color: #333;
+  }
+  
+  .about-details p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #666;
+  }
+  
+  /* Key features section */
+  .about-features {
+    margin-bottom: 30px;
+  }
+  
+  .about-features h2 {
+    font-size: 2rem;
+    color: #333;
+  }
+  
+  .about-features ul {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+  
+  .about-features li {
+    font-size: 1.1rem;
+    color: #444;
+    margin-bottom: 10px;
+  }
+  
+  /* Contact section */
+  .about-contact h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-top: 30px;
+  }
+  
+  .about-contact p {
+    font-size: 1.2rem;
+    color: #555;
+  }
+  
+  .about-contact button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .about-contact button:hover {
+    background-color: #0056b3;
+  }
+  
