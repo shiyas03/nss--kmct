@@ -32,11 +32,12 @@ const NavBar = () => {
         <Link to="/login">
           <button className="btn login">Login</button>
         </Link>
-     <Link to='/donate'>
-        <button className="btn donate">Donate</button>
-      </Link>
-
-        
+        <Link to="/register">
+          <button className="btn login">Register</button>
+        </Link>
+        {/* <Link to='/donate'>
+          <button className="btn donate">Donate</button>
+        </Link> */}
       </div>
 
       <div className="menu-icon" onClick={toggleMenu}>
