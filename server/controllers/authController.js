@@ -59,26 +59,33 @@ const login = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid Password' });
     }
 
-    if (user.isApproved === false) {
+    if (user.block === true) {
       return res.status(400).json({ msg: 'You do not have access' });
     }
 
-    const payload = {
-      user: {
-        id: user.id,
-        role: user.role,
-      },
-    };
+    if (user.status === 'requested') {
+      return res.status(400).json({ msg: 'Your account is not approved yet!' });
+    } else if (user.status === 'rejected') {
+      return res.status(400).json({ msg: 'Your account is rejected!' });
+    } else {
+      const payload = {
+        user: {
+          id: user.id,
+          role: user.role,
+        },
+      };
 
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' },
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      }
-    );
+      jwt.sign(
+        payload,
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' },
+        (err, token) => {
+          if (err) throw err;
+          res.json({ token: token, role: user.role });
+        }
+      );
+    }
+
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

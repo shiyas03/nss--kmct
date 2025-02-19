@@ -10,19 +10,28 @@ const UserSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  mobile: {
+    type: String,
+  },
   password: {
     type: String,
-    required: true,
   },
   role: {
     type: String,
     enum: ['volunteer', 'programOfficer'],
-    default: 'volunteer',
   },
-  isApproved: {
+  block: {
     type: Boolean,
     default: false,
   },
+  status: {
+    type: String,
+    default: 'requested'
+  },
+  date: {
+    type: Date,
+    default: new Date()
+  }
 });
 
 module.exports = mongoose.model('User', UserSchema);
