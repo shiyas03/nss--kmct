@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import API from '../../services/api';
+import NavBar from '../../components/nav-bar/NavBar';
 
 const ProgramOfficersPage = () => {
     const [users, setUsers] = useState([]);
@@ -37,47 +38,48 @@ const ProgramOfficersPage = () => {
     }
 
     return (
-        <div>
-            <div class="w-full max-w-screen-xl relative overflow-x-auto mx-auto">
+        <main>
+            <NavBar />
+            <div className="w-full max-w-screen-xl relative overflow-x-auto mx-auto">
                 <h1 className='font-bold text-2xl pt-10 pb-5 text-center'>Volunteers List</h1>
-                <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                <table className="w-full text-sm text-left rtl:text-right text-gray-500 border">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr className='border-b'>
-                            <th scope="col" class="px-6 py-3">
+                            <th scope="col" className="px-6 py-3">
                                 No
                             </th>
-                            <th scope="col" class="px-6 py-3">
+                            <th scope="col" className="px-6 py-3">
                                 Name
                             </th>
-                            <th scope="col" class="px-6 py-3">
+                            <th scope="col" className="px-6 py-3">
                                 Email
                             </th>
-                            <th scope="col" class="px-6 py-3">
+                            <th scope="col" className="px-6 py-3">
                                 Status
                             </th>
-                            <th scope="col" class="px-6 py-3">
+                            <th scope="col" className="px-6 py-3">
                                 Action
                             </th>
                         </tr>
                     </thead>
                     <tbody>
                         {users.map((user, index) => (
-                            <tr class={`border-b ${user.status == 'rejected' ? 'bg-gray-50' : 'bg-white'}`}>
-                                <th scope="row" class="px-6 py-4">
+                            <tr className={`border-b ${user.status === 'rejected' ? 'bg-gray-50' : 'bg-white'}`}>
+                                <th scope="row" className="px-6 py-4">
                                     {index + 1}
                                 </th>
-                                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                     {user.name}
                                 </th>
-                                <td class="px-6 py-4">
+                                <td className="px-6 py-4">
                                     {user.email}
                                 </td>
-                                <td class="px-6 py-4">
+                                <td className="px-6 py-4">
                                     {user.status === 'requested' && <span className='text-yellow-500 font-medium'>requested</span>}
                                     {user.status === 'rejected' && <span className='text-red-500 font-medium'>rejected</span>}
                                     {user.status === 'approved' && <span className='text-green-500 font-medium'>Approved</span>}
                                 </td>
-                                <td class="px-6 py-4">
+                                <td className="px-6 py-4">
 
                                     {user.status === 'requested' &&
                                         <div className='flex gap-3'>
@@ -105,13 +107,13 @@ const ProgramOfficersPage = () => {
                         ))}
                         {users.length === 0 &&
                             <tr>
-                                <td colSpan="5" class="px-6 py-4 text-center">No users found</td>
+                                <td colSpan="5" className="px-6 py-4 text-center">No users found</td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
-        </div>
+        </main>
     )
 }
 

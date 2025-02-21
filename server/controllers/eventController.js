@@ -3,7 +3,7 @@ const User = require('../models/user');
 
 // Create a new event
 const createEvent = async (req, res) => {
-  const { title, description, date, location } = req.body;
+  const { title, location, organizer, date, description } = req.body;
 
   try {
     const event = new Event({
@@ -11,11 +11,12 @@ const createEvent = async (req, res) => {
       description,
       date,
       location,
-      organizer: req.user.id,
+      organizer
     });
 
     await event.save();
-    res.json(event);
+    const newEvent = await Event.findById(event._id).populate('organizer', 'name');
+    res.json({ event: newEvent });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
@@ -41,7 +42,6 @@ const participateInEvent = async (req, res) => {
       return res.status(404).json({ msg: 'Event not found' });
     }
 
-    // Check if the user is already a participant
     if (event.participants.includes(req.user.id)) {
       return res.status(400).json({ msg: 'You are already participating in this event' });
     }
