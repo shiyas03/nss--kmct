@@ -55,7 +55,7 @@ const VolunteersPage = () => {
         try {
             const response = await API.post('/users/new-volunteer', formData);
             if (response.data.user) {
-                setUsers([...users, response.data.user]);
+                setUsers([response.data.user, ...users]);
             }
             setDropdown(false)
             alert('Volunteer created successfully');
@@ -87,9 +87,6 @@ const VolunteersPage = () => {
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr>
                             <th scope="col" className="px-6 py-3">
-                                No
-                            </th>
-                            <th scope="col" className="px-6 py-3">
                                 Name
                             </th>
                             <th scope="col" className="px-6 py-3">
@@ -99,6 +96,9 @@ const VolunteersPage = () => {
                                 Mobile
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                status
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Action
                             </th>
                         </tr>
@@ -106,9 +106,6 @@ const VolunteersPage = () => {
                     <tbody>
                         {users.map((user, index) => (
                             <tr className="bg-white border-b" key={index}>
-                                <th scope="row" className="px-6 py-4">
-                                    {index + 1}
-                                </th>
                                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                     {user.name}
                                 </th>
@@ -117,6 +114,10 @@ const VolunteersPage = () => {
                                 </td>
                                 <td className="px-6 py-4">
                                     {user.mobile}
+                                </td>
+                                <td className="px-6 py-4">
+                                    {user.status === 'not verified' && <span className="text-red-500">{user.status}</span>}
+                                    {user.status === 'verified' && <span className="text-green-500">{user.status}</span>}
                                 </td>
                                 <td className="px-6 py-4">
 
@@ -129,13 +130,13 @@ const VolunteersPage = () => {
                                         </div>
                                     }
 
-                                    {user.block === true && user.status === 'approved' &&
+                                    {user.block === true && (user.status === 'verified' || user.status === 'not verified') &&
                                         <button className='px-3 py-1.5 bg-green-500 text-white rounded-lg'
                                             onClick={() => handleUpdateStatus(user._id, true, index)} disabled={user.block}>
                                             Unblock
                                         </button>
                                     }
-                                    {user.block === false && user.status === 'approved' &&
+                                    {user.block === false && (user.status === 'verified' || user.status === 'not verified') &&
                                         <button className='px-3 py-1.5 bg-red-500 text-white rounded-lg'
                                             onClick={() => handleUpdateStatus(user._id, false)} disabled={!user.block}>
                                             Block

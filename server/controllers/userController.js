@@ -1,8 +1,10 @@
 const User = require('../models/user');
+const sendEmail = require('../config/mailer');
+const bcrypt = require('bcryptjs');
 
 const getVolunteers = async (req, res) => {
   try {
-    const volunteers = await User.find({ role: 'volunteer' }).select('-password').sort({ date: 1 });
+    const volunteers = await User.find({ role: 'volunteer' }).select('-password').sort({ date: -1 });
     res.json(volunteers);
   } catch (err) {
     console.error(err.message);
@@ -63,6 +65,7 @@ const updateUserRequest = async (req, res) => {
 
 const NewVolunteer = async (req, res) => {
   const { name, email, mobile, role } = req.body;
+  const verificationLink = `${process.env.SERVER_URL}/api/users/verify/${email}`;
   try {
     let user = await User.findOne({ email });
     if (user) {
@@ -74,15 +77,48 @@ const NewVolunteer = async (req, res) => {
       email,
       mobile,
       role,
-      status: 'approved',
+      status: 'not verified',
     });
     await user.save();
-
     res.json({ user });
+    await sendEmail(email, name, verificationLink)
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Server error');
   }
 }
 
-module.exports = { getVolunteers, getProgramOfficers, updateUserStatus, updateUserRequest, NewVolunteer };
+const VerifyVolunteer = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const user = await User.findOneAndUpdate({ email: email }, { status: 'verified' });
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    res.redirect(`${process.env.CLIENT_URL}/set-password`);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+}
+
+const NewPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    let user = await User.findOne({ email: email });
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+    await user.save();
+    res.json({ msg: 'Password updated successfully' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+}
+
+module.exports = { getVolunteers, getProgramOfficers, updateUserStatus, updateUserRequest, NewVolunteer, VerifyVolunteer, NewPassword };

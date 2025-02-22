@@ -102,7 +102,7 @@ const EventsPage = () => {
     return (
         <main>
             <NavBar />
-            <div className=''>
+            <div>
                 <div className="w-full max-w-screen-xl relative overflow-x-auto mx-auto">
                     <div className='w-full flex justify-between pt-10 pb-5'>
                         <h1 className='font-bold text-2xl text-center'>Events List</h1>
