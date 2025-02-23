@@ -26,7 +26,7 @@ const createEvent = async (req, res) => {
 // Get all events
 const getEvents = async (req, res) => {
   try {
-    const events = await Event.find().populate('organizer', 'name');
+    const events = await Event.find().populate('organizer', 'name').populate('participants.user', 'name email').sort({ date: -1 });
     res.json(events);
   } catch (err) {
     console.error(err.message);
@@ -38,17 +38,23 @@ const getEvents = async (req, res) => {
 const participateInEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.eventId);
+    const userId = req.user._id;
     if (!event) {
       return res.status(404).json({ msg: 'Event not found' });
     }
 
-    if (event.participants.includes(req.user.id)) {
-      return res.status(400).json({ msg: 'You are already participating in this event' });
+    const alreadyJoined = event.participants.some((participant) =>
+      participant.user.equals(userId)
+    );
+
+    if (alreadyJoined) {
+      return res.json({ msg: "You already joined this event" });
     }
 
-    event.participants.push(req.user.id);
+    event.participants.push({ user: userId });
     await event.save();
-    res.json(event);
+
+    res.json({ event });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

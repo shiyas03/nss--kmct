@@ -7,6 +7,7 @@ const EventsPage = () => {
 
     const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -19,6 +20,20 @@ const EventsPage = () => {
         };
 
         fetchEvents();
+
+        const fetchUser = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    const response = await API.get('/auth/me');
+                    setUser(response.data);
+
+                }
+            } catch (error) {
+                console.error('Failed to fetch user:', error.response?.data?.msg || error.message);
+            }
+        };
+        fetchUser();
     }, []);
 
 
@@ -44,10 +59,15 @@ const EventsPage = () => {
 
     const handleParticipate = async (eventId) => {
         try {
-            await API.post(`/events/${eventId}/participate`);
+            const response = await API.post(`/events/${eventId}/participate`);
+            console.log(response);
+
+            if (response.data.msg) {
+                return alert(response.data.msg);
+            }
             alert('You have successfully registered for the event!');
-            const response = await API.get('/events');
-            setEvents(response.data);
+            const events = await API.get('/events');
+            setEvents(events.data);
         } catch (error) {
             console.error('Failed to participate:', error.response?.data?.msg || error.message);
         }
@@ -90,6 +110,13 @@ const EventsPage = () => {
         setDropdown(!dropdown);
     }
 
+    const [dropdownList, setDropdownList] = useState(false);
+
+    const handleDropdownList = (index) => {
+        setDropdownList(!dropdownList);
+        setSelectedEvent(events[index]);
+    }
+
     const formatDate = (isoString) => {
         const date = new Date(isoString);
         return date.toLocaleDateString("en-IN", {
@@ -102,162 +129,242 @@ const EventsPage = () => {
     return (
         <main>
             <NavBar />
-            <div>
-                <div className="w-full max-w-screen-xl relative overflow-x-auto mx-auto">
-                    <div className='w-full flex justify-between pt-10 pb-5'>
-                        <h1 className='font-bold text-2xl text-center'>Events List</h1>
-                        <button data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" className="block text-white bg-orange-500 hover:bg-orange-800 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-4 py-2 text-center" type="button"
-                            onClick={handleDropdown}>
-                            + New event
-                        </button>
-                    </div>
-                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 border">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                            <tr>
-                                <th scope="col" className="px-6 py-3">
-                                    Title
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Description
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Location
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Organizer
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Date
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {events.map((event, index) => (
-                                <tr className="bg-white border-b" key={index}>
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                        {event.title}
-                                    </th>
-                                    <td className="px-6 py-4">
-                                        {event.description}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        {event.location}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        {event.organizer.name}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        {formatDate(event.date)}
-                                    </td>
-                                    <td className="px-6 py-4">
-
-                                    </td>
-                                </tr>
-                            ))}
-                            {events.length === 0 &&
+            {user?.role !== 'volunteer' && (
+                <div>
+                    <div className="w-full max-w-screen-xl relative overflow-x-auto mx-auto">
+                        <div className='w-full flex justify-between pt-10 pb-5'>
+                            <h1 className='font-bold text-2xl text-center'>Events List</h1>
+                            <button data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" className="block text-white bg-orange-500 hover:bg-orange-800 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-4 py-2 text-center" type="button"
+                                onClick={handleDropdown}>
+                                + New event
+                            </button>
+                        </div>
+                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 border">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-4 text-center">No events found</td>
+                                    <th scope="col" className="px-6 py-3">
+                                        Title
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Description
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Location
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Organizer
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Date
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Participants
+                                    </th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {events.map((event, index) => (
+                                    <tr className="bg-white border-b" key={index}>
+                                        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                            {event.title}
+                                        </th>
+                                        <td className="px-6 py-4">
+                                            {event.description}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {event.location}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {event.organizer.name}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {formatDate(event.date)}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <button className="flex gap-1 hover:underline"
+                                                onClick={() => handleDropdownList(index)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                </svg>
+                                                View List
+                                            </button>
+                                        </td>
+                                        <td className="px-6 py-4">
+
+                                        </td>
+                                    </tr>
+                                ))}
+                                {events.length === 0 &&
+                                    <tr>
+                                        <td colSpan="5" className="px-6 py-4 text-center">No events found</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
 
 
-                {dropdown && (
-                    <div id="authentication-modal" tabindex="-1" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
-                        <div className="relative w-full max-w-md max-h-full">
-                            <div className="relative bg-gray-50 rounded-lg shadow-sm border-2">
-                                <div className="flex items-center justify-between p-4 md:p-5 border-b-2 rounded-t border-gray-200 bg-white">
-                                    <h3 className="text-lg font-semibold text-gray-900">
-                                        New Event
-                                    </h3>
-                                    <button type="button" className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="authentication-modal"
-                                        onClick={handleDropdown}>
-                                        <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                                        </svg>
-                                        <span className="sr-only">Close modal</span>
-                                    </button>
-                                </div>
+                    {dropdown && (
+                        <div id="authentication-modal" tabindex="-1" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
+                            <div className="relative w-full max-w-md max-h-full">
+                                <div className="relative bg-gray-50 rounded-lg shadow-sm border-2">
+                                    <div className="flex items-center justify-between p-4 md:p-5 border-b-2 rounded-t border-gray-200 bg-white">
+                                        <h3 className="text-lg font-semibold text-gray-900">
+                                            New Event
+                                        </h3>
+                                        <button type="button" className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="authentication-modal"
+                                            onClick={handleDropdown}>
+                                            <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                            </svg>
+                                            <span className="sr-only">Close modal</span>
+                                        </button>
+                                    </div>
 
-                                <div className="p-4 md:p-5">
-                                    <form className="space-y-6" onSubmit={handleSubmit}>
-                                        <div>
-                                            <label for="title" className="block text-sm/6 font-medium text-gray-900">Title</label>
-                                            <div className="mt-2">
-                                                <input type="text" name="title" id="title" autocomplete="title" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
-                                                    placeholder="Title"
-                                                    value={formData.title}
-                                                    onChange={handleChange}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label for="location" className="block text-sm/6 font-medium text-gray-900">location</label>
-                                            <div className="mt-2">
-                                                <input type="text" name="location" id="location" autocomplete="location" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
-                                                    placeholder="location"
-                                                    value={formData.location}
-                                                    onChange={handleChange}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className='flex gap-2'>
-                                            <div className='w-full'>
-                                                <label for="organizer" className="block text-sm/6 font-medium text-gray-900">Organizer</label>
+                                    <div className="p-4 md:p-5">
+                                        <form className="space-y-6" onSubmit={handleSubmit}>
+                                            <div>
+                                                <label for="title" className="block text-sm/6 font-medium text-gray-900">Title</label>
                                                 <div className="mt-2">
-                                                    <select id="organizer" className="block w-full rounded-md bg-white px-3 py-2.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
-                                                        value={formData.organizer}
-                                                        onChange={handleChange}>
-                                                        <option value="" selected>Choose a officer</option>
-                                                        {
-                                                            users.map((user, index) => {
-                                                                return (
-                                                                    <option key={index} value={user._id}>{user.name}</option>
-                                                                )
-                                                            })
-                                                        }
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div className='w-full'>
-                                                <label for="date" className="block text-sm/6 font-medium text-gray-900">date</label>
-                                                <div className="mt-2">
-                                                    <input type="date" name="date" id="date" autocomplete="date" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
-                                                        placeholder="date"
-                                                        value={formData.date}
+                                                    <input type="text" name="title" id="title" autocomplete="title" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
+                                                        placeholder="Title"
+                                                        value={formData.title}
                                                         onChange={handleChange}
                                                     />
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div>
-                                            <label for="description" className="block text-sm/6 font-medium text-gray-900">description</label>
-                                            <div className="mt-2">
-                                                <textarea id="description" rows="4" className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2" placeholder="Write description here..."
-                                                    value={formData.description}
-                                                    onChange={handleChange}></textarea>
+                                            <div>
+                                                <label for="location" className="block text-sm/6 font-medium text-gray-900">location</label>
+                                                <div className="mt-2">
+                                                    <input type="text" name="location" id="location" autocomplete="location" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
+                                                        placeholder="location"
+                                                        value={formData.location}
+                                                        onChange={handleChange}
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div>
-                                            <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Submit</button>
-                                        </div>
-                                    </form>
+                                            <div className='flex gap-2'>
+                                                <div className='w-full'>
+                                                    <label for="organizer" className="block text-sm/6 font-medium text-gray-900">Organizer</label>
+                                                    <div className="mt-2">
+                                                        <select id="organizer" className="block w-full rounded-md bg-white px-3 py-2.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
+                                                            value={formData.organizer}
+                                                            onChange={handleChange}>
+                                                            <option value="" selected>Choose a officer</option>
+                                                            {
+                                                                users.map((user, index) => {
+                                                                    return (
+                                                                        <option key={index} value={user._id}>{user.name}</option>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div className='w-full'>
+                                                    <label for="date" className="block text-sm/6 font-medium text-gray-900">date</label>
+                                                    <div className="mt-2">
+                                                        <input type="date" name="date" id="date" autocomplete="date" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
+                                                            placeholder="date"
+                                                            value={formData.date}
+                                                            onChange={handleChange}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label for="description" className="block text-sm/6 font-medium text-gray-900">description</label>
+                                                <div className="mt-2">
+                                                    <textarea id="description" rows="4" className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2" placeholder="Write description here..."
+                                                        value={formData.description}
+                                                        onChange={handleChange}></textarea>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Submit</button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    )}
+
+
+                    {dropdownList && (
+                        <div id="authentication-modal" tabindex="-1" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
+                            <div className="relative w-full max-w-md max-h-full">
+                                <div className="relative bg-gray-50 rounded-lg shadow-sm border-2">
+                                    <div className="flex items-center justify-between p-4 md:p-5 border-b-2 rounded-t border-gray-200 bg-white">
+                                        <h3 className="text-lg font-semibold text-gray-900">
+                                            Participants List
+                                        </h3>
+                                        <button type="button" className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="authentication-modal"
+                                            onClick={handleDropdownList}>
+                                            <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                            </svg>
+                                            <span className="sr-only">Close modal</span>
+                                        </button>
+                                    </div>
+
+                                    <ul class="w-full h-full max-h-96 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg overflow-y-auto">
+                                        {selectedEvent?.participants.map((participant, index) => (
+                                            <li class="w-full px-4 py-2 border-b border-gray-200 rounded-t-lg" key={index}>
+                                                <p className="font-medium">{participant.user.name} </p>
+                                                <span className="font-small">{formatDate(participant.date)}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {user?.role === 'volunteer' && (
+                <div className="w-full">
+                    <div className="w-full max-w-screen-xl mx-auto grid grid-cols-2 gap-10 py-20">
+                        {events.map((event, index) => {
+                            return (
+                                <div className="w-full p-6 bg-white border-2 border-gray-200 rounded-lg shadow-sm" key={index}>
+                                    <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{event.title}</h5>
+                                    <p className="mb-3 font-normal text-gray-700">{event.description}</p>
+                                    <div className="flex justify-between items-end mb-3">
+                                        <div>
+                                            <p className="font-normal text-gray-700">Organizer: {event.organizer.name}</p>
+                                            <p className="font-normal text-gray-700">Location: {event.location}</p>
+                                            <p className="font-normal text-gray-700">{formatDate(event.date)}</p>
+                                        </div>
+                                        {event.participants.find((participant) => participant.user === user._id) ? (
+                                            <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300">
+                                                Already Participated
+                                            </button>
+                                        ) : (
+                                            <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
+                                                onClick={() => handleParticipate(event._id)}>
+                                                Participate
+                                                <svg className="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+                                                </svg>
+                                            </button>
+                                        )}
+
+                                    </div>
+                                </div>
+                            )
+                        })}
                     </div>
-                )}
-            </div>
+                </div>
+
+            )}
         </main>
     )
 }
