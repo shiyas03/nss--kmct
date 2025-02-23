@@ -77,4 +77,29 @@ const generateEventReport = async (req, res) => {
   }
 };
 
-module.exports = { createEvent, getEvents, participateInEvent, generateEventReport };
+const eventFeedback = async (req, res) => {
+  try {
+    const { eventId } = req.params
+    const data = req.body
+
+    const event = await Event.findOne({ _id: eventId })
+    if (!event) {
+      res.json({ msg: 'Event not found' })
+    }
+
+    const findEventIndex = event.participants.findIndex((participant) => participant.user.toString() === data.userId)
+    if (findEventIndex >= 0) {
+      event.participants[0].feedback = data.feedback
+    } else {
+      event.participants.push({ user: data.userId, feedback: data.feedback, date: new Date() })
+    }
+    
+    await event.save()
+    res.json({ msg: "Feedback added successfully!" });
+  } catch (error) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+}
+
+module.exports = { createEvent, getEvents, participateInEvent, generateEventReport, eventFeedback };

@@ -51,13 +51,13 @@ const verificationTemplate = (name, verificationLink) => {
           </style>
       </head>
       <body>
-          <div class="container">
+          <div className="container">
               <h2>Email Verification</h2>
               <p>Hello <strong>${name}</strong>,</p>
               <p>Thank you for registering. Please verify your email address by clicking the button below:</p>
-              <a href="${verificationLink}" class="verify-btn">Verify Email</a>
+              <a href="${verificationLink}" className="verify-btn">Verify Email</a>
               <p>If you did not request this, please ignore this email.</p>
-              <p class="footer">© ${new Date().getFullYear()} NSS UNIT KMCT. All rights reserved.</p>
+              <p className="footer">© ${new Date().getFullYear()} NSS UNIT KMCT. All rights reserved.</p>
           </div>
       </body>
       </html>

@@ -14,6 +14,7 @@ import ProgramOfficersPage from './pages/program-officers/programOfficers';
 import PoDashboardPage from './pages/po-dashboard/poDashboard';
 import DashboardPage from './pages/dashboard/dashboard';
 import SetPassword from './pages/password/setPassword';
+import ProfilePage from './pages/profile/profile';
 
 function App() {
 
@@ -33,6 +34,7 @@ function App() {
         <Route path="/volunteers" element={<VolunteersPage />} />
         <Route path="/program-officers" element={<ProgramOfficersPage />} />
         <Route path="/set-password" element={<SetPassword />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </BrowserRouter>
   );

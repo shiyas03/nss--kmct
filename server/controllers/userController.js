@@ -121,4 +121,25 @@ const NewPassword = async (req, res) => {
   }
 }
 
-module.exports = { getVolunteers, getProgramOfficers, updateUserStatus, updateUserRequest, NewVolunteer, VerifyVolunteer, NewPassword };
+const ResetPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const { userId } = req.params;
+
+    let user = await User.findOne({ _id: userId });
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+
+    await user.save();
+    res.json({ msg: 'Password updated successfully' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+}
+
+module.exports = { getVolunteers, getProgramOfficers, updateUserStatus, updateUserRequest, NewVolunteer, VerifyVolunteer, NewPassword, ResetPassword };

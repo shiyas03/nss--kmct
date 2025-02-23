@@ -5,8 +5,8 @@ const verificationTemplate = require("./emailTemplate");
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        user:"amigrootorwhat@gmail.com",
-        pass: "kics jzbl lipb qdwn"
+        user:"nssproject22@gmail.com",
+        pass: "bxct ktrv wfmn xyxe"
     }
 });
 
@@ -26,5 +26,4 @@ const sendEmail = async (to, name, verificationLink) => {
     }
 };
 
-// sendEmail("recipient@example.com", "Test Email", "Hello! This is a test email.");
 module.exports = sendEmail;

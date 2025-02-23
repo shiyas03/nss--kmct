@@ -9,6 +9,9 @@ const ParticipantsSchema = new mongoose.Schema({
     type: Date,
     default: new Date(),
   },
+  feedback: {
+    type: String
+  }
 })
 
 const EventSchema = new mongoose.Schema({

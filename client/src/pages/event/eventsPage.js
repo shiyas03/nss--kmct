@@ -27,7 +27,6 @@ const EventsPage = () => {
                 if (token) {
                     const response = await API.get('/auth/me');
                     setUser(response.data);
-
                 }
             } catch (error) {
                 console.error('Failed to fetch user:', error.response?.data?.msg || error.message);
@@ -48,20 +47,9 @@ const EventsPage = () => {
         }
     };
 
-    const handleViewFeedback = async (eventId) => {
-        try {
-            const response = await API.get(`/feedback/${eventId}`);
-            setSelectedEvent({ id: eventId, feedback: response.data });
-        } catch (error) {
-            console.error('Failed to fetch feedback:', error.response?.data?.msg || error.message);
-        }
-    };
-
     const handleParticipate = async (eventId) => {
         try {
             const response = await API.post(`/events/${eventId}/participate`);
-            console.log(response);
-
             if (response.data.msg) {
                 return alert(response.data.msg);
             }
@@ -110,10 +98,23 @@ const EventsPage = () => {
         setDropdown(!dropdown);
     }
 
-    const [dropdownList, setDropdownList] = useState(false);
+    const [feedbackFrom, setFeedbackForm] = useState(null);
 
-    const handleDropdownList = (index) => {
-        setDropdownList(!dropdownList);
+    const handleFeedback = (index) => {
+        setFeedbackForm(feedbackFrom === index ? null : index);
+    }
+
+    const [modalList, setModalList] = useState(false);
+
+    const handleModalList = (index) => {
+        setModalList(!modalList);
+        setSelectedEvent(events[index]);
+    }
+
+    const [modalFeedback, setModalFeedback] = useState(false);
+
+    const handleModalFeedback = (index) => {
+        setModalFeedback(!modalFeedback);
         setSelectedEvent(events[index]);
     }
 
@@ -125,6 +126,22 @@ const EventsPage = () => {
             year: "numeric",
         });
     };
+
+    const [feedback, setFeedback] = useState("");
+
+    const handleFeedbackSubmit = async (eventId) => {
+        if (!feedback.trim()) {
+            alert("Please enter feedback.");
+            return;
+        }
+
+        const data = { feedback, userId: user._id }
+        const response = await API.post(`/events/feedback/${eventId}`, data);
+        if (response.data) {
+            alert(response.data.msg)
+        }
+        feedbackFrom(null)
+    }
 
     return (
         <main>
@@ -160,6 +177,9 @@ const EventsPage = () => {
                                     <th scope="col" className="px-6 py-3">
                                         Participants
                                     </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Feedbacks
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -182,15 +202,21 @@ const EventsPage = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <button className="flex gap-1 hover:underline"
-                                                onClick={() => handleDropdownList(index)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                onClick={() => handleModalList(index)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                                 </svg>
                                                 View List
                                             </button>
                                         </td>
                                         <td className="px-6 py-4">
-
+                                            <button className="flex gap-1 hover:underline"
+                                                onClick={() => handleModalFeedback(index)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                </svg>
+                                                Feedbacks
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -202,7 +228,6 @@ const EventsPage = () => {
                             </tbody>
                         </table>
                     </div>
-
 
                     {dropdown && (
                         <div id="authentication-modal" tabindex="-1" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
@@ -296,7 +321,7 @@ const EventsPage = () => {
                     )}
 
 
-                    {dropdownList && (
+                    {modalList && (
                         <div id="authentication-modal" tabindex="-1" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
                             <div className="relative w-full max-w-md max-h-full">
                                 <div className="relative bg-gray-50 rounded-lg shadow-sm border-2">
@@ -305,7 +330,7 @@ const EventsPage = () => {
                                             Participants List
                                         </h3>
                                         <button type="button" className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="authentication-modal"
-                                            onClick={handleDropdownList}>
+                                            onClick={handleModalList}>
                                             <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                                             </svg>
@@ -313,11 +338,47 @@ const EventsPage = () => {
                                         </button>
                                     </div>
 
-                                    <ul class="w-full h-full max-h-96 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg overflow-y-auto">
+                                    <ul className="w-full h-full max-h-96 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg overflow-y-auto">
                                         {selectedEvent?.participants.map((participant, index) => (
-                                            <li class="w-full px-4 py-2 border-b border-gray-200 rounded-t-lg" key={index}>
+                                            <li className="w-full px-4 py-2 border-b border-gray-200 rounded-t-lg" key={index}>
                                                 <p className="font-medium">{participant.user.name} </p>
                                                 <span className="font-small">{formatDate(participant.date)}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {modalFeedback && (
+                        <div id="authentication-modal" tabindex="-1" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
+                            <div className="relative w-full max-w-md max-h-full">
+                                <div className="relative bg-gray-50 rounded-lg shadow-sm border-2">
+                                    <div className="flex items-center justify-between p-4 md:p-5 border-b-2 rounded-t border-gray-200 bg-white">
+                                        <h3 className="text-lg font-semibold text-gray-900">
+                                            Feedback List
+                                        </h3>
+                                        <button type="button" className="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="authentication-modal"
+                                            onClick={handleModalFeedback}>
+                                            <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                            </svg>
+                                            <span className="sr-only">Close modal</span>
+                                        </button>
+                                    </div>
+
+                                    <ul className="w-full h-full max-h-96 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg overflow-y-auto">
+                                        {selectedEvent?.participants.map((participant, index) => (
+                                            <li className="w-full px-4 py-2 border-b border-gray-200 rounded-t-lg" key={index}>
+                                                <div className='flex justify-between items-start'>
+                                                    <span className="font-medium">{participant.feedback}</span>
+                                                    <div>
+                                                        <p className="font-small text-end">{participant.user.name} </p>
+                                                        <span className="font-small">{formatDate(participant.date)}</span>
+                                                    </div>
+                                                </div>
                                             </li>
                                         ))}
                                     </ul>
@@ -331,10 +392,10 @@ const EventsPage = () => {
 
             {user?.role === 'volunteer' && (
                 <div className="w-full">
-                    <div className="w-full max-w-screen-xl mx-auto grid grid-cols-2 gap-10 py-20">
+                    <div className="w-full max-w-screen-xl mx-auto grid grid-cols-2 gap-10 py-20 h-fit">
                         {events.map((event, index) => {
                             return (
-                                <div className="w-full p-6 bg-white border-2 border-gray-200 rounded-lg shadow-sm" key={index}>
+                                <div className="w-full h-fit p-6 bg-white border-2 border-gray-200 rounded-lg shadow-sm" key={index}>
                                     <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{event.title}</h5>
                                     <p className="mb-3 font-normal text-gray-700">{event.description}</p>
                                     <div className="flex justify-between items-end mb-3">
@@ -343,21 +404,38 @@ const EventsPage = () => {
                                             <p className="font-normal text-gray-700">Location: {event.location}</p>
                                             <p className="font-normal text-gray-700">{formatDate(event.date)}</p>
                                         </div>
-                                        {event.participants.find((participant) => participant.user === user._id) ? (
-                                            <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300">
-                                                Already Participated
-                                            </button>
-                                        ) : (
-                                            <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
-                                                onClick={() => handleParticipate(event._id)}>
-                                                Participate
-                                                <svg className="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
-                                                </svg>
-                                            </button>
-                                        )}
-
+                                        <div className='flex gap-1'>
+                                            {event.participants.length > 0 && event.participants.map((participant) => participant.user === user._id) ? (
+                                                <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300">
+                                                    Already Participated
+                                                </button>
+                                            ) : (
+                                                <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
+                                                    onClick={() => handleParticipate(event._id)}>
+                                                    Participate
+                                                    <svg className="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+                                                    </svg>
+                                                </button>
+                                            )}
+                                            {event.participants.length > 0 && event.participants.some((participant) => participant.user === user._id && !participant.feedback) &&
+                                                <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-300"
+                                                    onClick={() => handleFeedback(index)}>
+                                                    Feedback
+                                                </button>
+                                            }
+                                        </div>
                                     </div>
+                                    {feedbackFrom === index && (
+                                        <form onSubmit={() => handleFeedbackSubmit(event._id)}>
+                                            <label for="message" class="block mb-2 text-sm font-medium text-gray-900">Your Feedback</label>
+                                            <textarea id="message" rows="4" class="block p-2.5 w-full mb-3 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                                onChange={(e) => setFeedback(e.target.value)}
+                                                value={feedback}
+                                                placeholder="Write your feedback here..."></textarea>
+                                            <button className='w-full py-1.5 bg-blue-600 text-white rounded-lg font-medium'>Submit</button>
+                                        </form>
+                                    )}
                                 </div>
                             )
                         })}
