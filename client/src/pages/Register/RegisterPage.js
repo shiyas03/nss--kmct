@@ -9,6 +9,7 @@ const RegisterPage = () => {
     password: '',
     role: 'programOfficer',
   });
+  
   const navigate = useNavigate();
 
   const handleChange = (e) => {

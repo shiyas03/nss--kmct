@@ -15,6 +15,7 @@ import PoDashboardPage from './pages/po-dashboard/poDashboard';
 import DashboardPage from './pages/dashboard/dashboard';
 import SetPassword from './pages/password/setPassword';
 import ProfilePage from './pages/profile/profile';
+import FeedbackPage from './pages/feedback/feedback';
 
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
         <Route path="/program-officers" element={<ProgramOfficersPage />} />
         <Route path="/set-password" element={<SetPassword />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
       </Routes>
     </BrowserRouter>
   );

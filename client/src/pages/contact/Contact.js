@@ -1,8 +1,35 @@
-import React from "react";
+import React, { useState } from 'react';
 import "./Contact.css";
 import NavBar from '../../components/nav-bar/NavBar';
+import API from '../../services/api';
 
 const Contact = () => {
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: '',
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await API.post('/users/feedback', formData);
+      if (response) {
+        alert(response.data.msg)
+        setFormData({
+          name: '', email: '', message: ''
+        })
+      }
+    } catch (error) {
+      console.error('failed:', error.response?.data?.msg || error.message);
+    }
+  };
+
   return (
     <main>
       <NavBar />
@@ -14,18 +41,27 @@ const Contact = () => {
         <section className="contact-content">
           <div className="contact-form">
             <h2>Get in Touch</h2>
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="name">Name</label>
-                <input type="text" id="name" placeholder="Enter your name" required />
+                <input type="text" id="name" placeholder="Enter your name" required
+                  name='name'
+                  value={formData.name}
+                  onChange={handleChange} />
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email</label>
-                <input type="email" id="email" placeholder="Enter your email" required />
+                <input type="email" id="email" placeholder="Enter your email" required
+                  name='email'
+                  value={formData.email}
+                  onChange={handleChange} />
               </div>
               <div className="form-group">
                 <label htmlFor="message">Message</label>
-                <textarea id="message" rows="5" placeholder="Enter your message" required></textarea>
+                <textarea id="message" rows="5" placeholder="Enter your message" required
+                  name='message'
+                  value={formData.message}
+                  onChange={handleChange}></textarea>
               </div>
               <button type="submit" className="submit-button">Send Message</button>
             </form>

@@ -1,5 +1,5 @@
 const express = require('express');
-const { getVolunteers, getProgramOfficers, updateUserStatus, updateUserRequest, NewVolunteer, VerifyVolunteer, NewPassword, ResetPassword, EditUser } = require('../controllers/userController');
+const { getVolunteers, getProgramOfficers, updateUserStatus, updateUserRequest, NewVolunteer, VerifyVolunteer, NewPassword, ResetPassword, EditUser, userFeedback, getFeedback } = require('../controllers/userController');
 const auth = require('../middleware/auth');
 const router = express.Router();
 
@@ -20,5 +20,9 @@ router.post('/set-password', auth, NewPassword)
 router.post('/reset-password/:userId', auth, ResetPassword)
 
 router.put('/update/:id', auth, EditUser)
+
+router.post('/feedback', userFeedback)
+
+router.get('/feedback', getFeedback)
 
 module.exports = router;

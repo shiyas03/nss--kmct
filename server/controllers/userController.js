@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const sendEmail = require('../config/mailer');
 const bcrypt = require('bcryptjs');
+const Feedback = require('../models/feedback');
 
 const getVolunteers = async (req, res) => {
   try {
@@ -142,8 +143,6 @@ const ResetPassword = async (req, res) => {
   }
 }
 
-
-
 const EditUser = async (req, res) => {
   try {
 
@@ -162,4 +161,32 @@ const EditUser = async (req, res) => {
   }
 }
 
-module.exports = { getVolunteers, getProgramOfficers, updateUserStatus, updateUserRequest, NewVolunteer, VerifyVolunteer, NewPassword, ResetPassword, EditUser };
+const userFeedback = async (req, res) => {
+  try {
+    const { name, email, message } = req.body
+    let feedback = new Feedback({
+      name,
+      email,
+      message
+    })
+    await feedback.save()
+    res.json({ msg: 'feedback uploaded' })
+
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+}
+
+const getFeedback = async (req, res) => {
+  try {
+    console.log('working');
+    const feedbacks = await Feedback.find().sort({ date: -1 })
+    res.json({ feedbacks })
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+}
+
+module.exports = { getVolunteers, getProgramOfficers, updateUserStatus, updateUserRequest, NewVolunteer, VerifyVolunteer, NewPassword, ResetPassword, EditUser, userFeedback, getFeedback };

@@ -1,30 +1,22 @@
 const mongoose = require('mongoose');
 
 const FeedbackSchema = new mongoose.Schema({
-  event: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Event',
+  name: {
+    type: String,
     required: true,
   },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+  email: {
+    type: String,
     required: true,
   },
   message: {
     type: String,
     required: true,
   },
-  rating: {
-    type: Number,
-    required: true,
-    min: 1,
-    max: 5,
-  },
-  createdAt: {
+  date:{
     type: Date,
-    default: Date.now,
-  },
+    default: new Date(),
+  }
 });
 
 module.exports = mongoose.model('Feedback', FeedbackSchema);
