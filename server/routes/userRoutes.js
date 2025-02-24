@@ -1,5 +1,5 @@
 const express = require('express');
-const { getVolunteers, getProgramOfficers, updateUserStatus, updateUserRequest, NewVolunteer, VerifyVolunteer, NewPassword, ResetPassword } = require('../controllers/userController');
+const { getVolunteers, getProgramOfficers, updateUserStatus, updateUserRequest, NewVolunteer, VerifyVolunteer, NewPassword, ResetPassword, EditUser } = require('../controllers/userController');
 const auth = require('../middleware/auth');
 const router = express.Router();
 
@@ -13,11 +13,12 @@ router.put('/approve', auth, updateUserRequest);
 
 router.post('/new-volunteer', auth, NewVolunteer)
 
-router.get('/verify/:email', VerifyVolunteer)
+router.get('/verify/:email', auth, VerifyVolunteer)
 
-router.post('/set-password', NewPassword)
+router.post('/set-password', auth, NewPassword)
 
-router.post('/reset-password/:userId', ResetPassword)
+router.post('/reset-password/:userId', auth, ResetPassword)
 
+router.put('/update/:id', auth, EditUser)
 
 module.exports = router;

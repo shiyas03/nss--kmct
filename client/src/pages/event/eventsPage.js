@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import FeedbackForm from '../../components/feedback/feedbackForm';
 import API from '../../services/api';
 import NavBar from '../../components/nav-bar/NavBar';
 

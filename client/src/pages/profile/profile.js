@@ -23,8 +23,9 @@ const ProfilePage = () => {
     }, []);
 
     const [formData, setFormData] = useState({
-        password: '',
-        cpassword: '',
+        name: '',
+        email:'',
+        mobile: '',
     });
 
     const navigate = useNavigate();
@@ -32,6 +33,32 @@ const ProfilePage = () => {
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await API.put(`/users/update/${user._id}`, formData);
+            if (response.data) {
+                user.name = formData.name;
+                user.email = formData.email;
+                user.mobile = formData.mobile;
+                alert(response.data.msg)
+                handleTabChange('profile')
+                setFormData(null)
+            }
+        } catch (error) {
+            console.error('Login failed:', error.response?.data?.msg || error.message);
+            alert(error.response?.data?.msg)
+        }
+    };
+
+    const [tab, setTabs] = useState('profile')
+    const handleTabChange = (tab) => {
+        setTabs(tab)
+        formData.name = user.name
+        formData.email = user.email
+        formData.mobile = user.mobile
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -49,11 +76,6 @@ const ProfilePage = () => {
             alert(error.response?.data?.msg)
         }
     };
-
-    const [tab, setTabs] = useState('profile')
-    const handleTabChange = (tab) => {
-        setTabs(tab)
-    }
 
     return (
         <main>
@@ -76,12 +98,13 @@ const ProfilePage = () => {
                         <div className="border-2">
                             <div className="flex justify-between border-b p-3">
                                 <p className="text-xl font-medium">Personal Informations</p>
-                                {/* <button className="px-4 py-2 bg-blue-600 text-white rounded-lg flex gap-1 items-center focus:ring-4 focus:ring-blue-300">
+                                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg flex gap-1 items-center focus:ring-4 focus:ring-blue-300"
+                                    onClick={() => handleTabChange('edit')}>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-4">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                     </svg>
                                     Edit
-                                </button> */}
+                                </button>
                             </div>
                             <div className="p-3">
                                 {user && (
@@ -132,6 +155,55 @@ const ProfilePage = () => {
                                         </div>
                                     </div>
                                     <button className="bg-blue-600 text-white py-2 w-full rounded-lg">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {tab === 'edit' && (
+                        <div className="border-2">
+                           <div className="flex justify-between border-b p-3">
+                                <p className="text-xl font-medium">Edit Informations</p>
+                                <button className="px-4 py-2 bg-gray-400 text-white rounded-lg flex gap-1 items-center focus:ring-4 focus:ring-gray-300"
+                                    onClick={() => handleTabChange('profile')}>
+                                    Cancel
+                                </button>
+                            </div>
+                            <div className="p-3">
+                                <form className="space-y-6" onSubmit={handleEditSubmit}>
+                                    <div>
+                                        <label for="name" className="block text-sm/6 font-medium text-gray-900">Name</label>
+                                        <div className="mt-2">
+                                            <input type="text" name="name" id="name" autocomplete="name" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
+                                                placeholder="John doe"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label for="email" className="block text-sm/6 font-medium text-gray-900">Email</label>
+                                        <div className="mt-2">
+                                            <input type="email" name="email" id="email" autocomplete="current-email" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
+                                                placeholder="johndoe@gmail.com"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label for="mobile" className="block text-sm/6 font-medium text-gray-900">Mobile Number</label>
+                                        <div className="mt-2">
+                                            <input type="text" name="mobile" id="mobile" autocomplete="mobile" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
+                                                placeholder="+91 1234567890"
+                                                value={formData.mobile}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </div>
+                                    <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Submit</button>
                                 </form>
                             </div>
                         </div>

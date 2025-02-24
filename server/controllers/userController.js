@@ -142,4 +142,24 @@ const ResetPassword = async (req, res) => {
   }
 }
 
-module.exports = { getVolunteers, getProgramOfficers, updateUserStatus, updateUserRequest, NewVolunteer, VerifyVolunteer, NewPassword, ResetPassword };
+
+
+const EditUser = async (req, res) => {
+  try {
+
+    const { name, email, mobile } = req.body
+    const userId = req.params.id
+
+    const user = await User.findOneAndUpdate({ _id: userId }, { $set: { name, email, mobile } })
+    if (!user) {
+      return res.json({ msg: 'User not found' })
+    }
+
+    res.json({ msg: 'User updated' })
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+}
+
+module.exports = { getVolunteers, getProgramOfficers, updateUserStatus, updateUserRequest, NewVolunteer, VerifyVolunteer, NewPassword, ResetPassword, EditUser };
