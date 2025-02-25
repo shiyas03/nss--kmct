@@ -47,27 +47,29 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-
   try {
     let user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ msg: 'Invalid Email' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid Password' });
-    }
-
     if (user.block === true) {
       return res.status(400).json({ msg: 'You do not have access' });
     }
+
 
     if (user.status === 'requested') {
       return res.status(400).json({ msg: 'Your account is not approved yet!' });
     } else if (user.status === 'rejected') {
       return res.status(400).json({ msg: 'Your account is rejected!' });
     } else {
+      if (!user.password) {
+        return res.status(400).json({ msg: 'Create password!' });
+      }
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ msg: 'Invalid Password' });
+      }
       const payload = {
         user: {
           id: user.id,

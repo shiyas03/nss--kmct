@@ -142,6 +142,15 @@ const EventsPage = () => {
         feedbackFrom(null)
     }
 
+    const handleParticipateStatus = async (status, eventId, user) => {
+        const data = { status, userId: user._id }
+        const response = await API.put(`/events/participant/${eventId}`, data);
+        if (response.data) {
+            alert(response.data.msg)
+            setSelectedEvent(response.data.event)
+        }
+    }
+
     return (
         <main>
             <NavBar />
@@ -229,7 +238,7 @@ const EventsPage = () => {
                     </div>
 
                     {dropdown && (
-                        <div id="authentication-modal" tabindex="-1" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
+                        <div id="authentication-modal" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
                             <div className="relative w-full max-w-md max-h-full">
                                 <div className="relative bg-gray-50 rounded-lg shadow-sm border-2">
                                     <div className="flex items-center justify-between p-4 md:p-5 border-b-2 rounded-t border-gray-200 bg-white">
@@ -321,7 +330,7 @@ const EventsPage = () => {
 
 
                     {modalList && (
-                        <div id="authentication-modal" tabindex="-1" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
+                        <div id="authentication-modal" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
                             <div className="relative w-full max-w-md max-h-full">
                                 <div className="relative bg-gray-50 rounded-lg shadow-sm border-2">
                                     <div className="flex items-center justify-between p-4 md:p-5 border-b-2 rounded-t border-gray-200 bg-white">
@@ -339,9 +348,21 @@ const EventsPage = () => {
 
                                     <ul className="w-full h-full max-h-96 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg overflow-y-auto">
                                         {selectedEvent?.participants.map((participant, index) => (
-                                            <li className="w-full px-4 py-2 border-b border-gray-200 rounded-t-lg" key={index}>
-                                                <p className="font-medium">{participant.user.name} </p>
-                                                <span className="font-small">{formatDate(participant.date)}</span>
+                                            <li className="w-full px-4 py-2 border-b border-gray-200 rounded-t-lg flex justify-between items-center gap-1" key={index}>
+                                                <div>
+                                                    <p className="font-medium">{participant.user.name} </p>
+                                                    <span className="font-small">{formatDate(participant.date)}</span>
+                                                </div>
+                                                {participant.status === 'requested' ? (
+                                                    <div className='flex items-center gap-1'>
+                                                        <button className='px-3 py-1 h-fit text-white bg-red-500 rounded-lg'
+                                                            onClick={() => handleParticipateStatus('rejected', selectedEvent._id, participant.user)}>Decline</button>
+                                                        <button className='px-3 py-1 h-fit text-white bg-green-500 rounded-lg'
+                                                            onClick={() => handleParticipateStatus('accepted', selectedEvent._id, participant.user)}>Accept</button>
+                                                    </div>
+                                                ) : (
+                                                    <span className='text-yellow-500 font-medium capitalize'>{participant.status}</span>
+                                                )}
                                             </li>
                                         ))}
                                     </ul>
@@ -352,7 +373,7 @@ const EventsPage = () => {
                     )}
 
                     {modalFeedback && (
-                        <div id="authentication-modal" tabindex="-1" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
+                        <div id="authentication-modal" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
                             <div className="relative w-full max-w-md max-h-full">
                                 <div className="relative bg-gray-50 rounded-lg shadow-sm border-2">
                                     <div className="flex items-center justify-between p-4 md:p-5 border-b-2 rounded-t border-gray-200 bg-white">
@@ -369,7 +390,7 @@ const EventsPage = () => {
                                     </div>
 
                                     <ul className="w-full h-full max-h-96 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg overflow-y-auto">
-                                        {selectedEvent?.participants.map((participant, index) => (
+                                        {selectedEvent?.participants.filter((participant) => participant.feedback).map((participant, index) => (
                                             <li className="w-full px-4 py-2 border-b border-gray-200 rounded-t-lg" key={index}>
                                                 <div className='flex justify-between items-start'>
                                                     <span className="font-medium">{participant.feedback}</span>
@@ -381,7 +402,6 @@ const EventsPage = () => {
                                             </li>
                                         ))}
                                     </ul>
-
                                 </div>
                             </div>
                         </div>
@@ -393,6 +413,7 @@ const EventsPage = () => {
                 <div className="w-full">
                     <div className="w-full max-w-screen-xl mx-auto grid grid-cols-2 gap-10 py-20 h-fit">
                         {events.map((event, index) => {
+                            const userParticipant = event.participants.find((participant) => participant.user._id === user._id);
                             return (
                                 <div className="w-full h-fit p-6 bg-white border-2 border-gray-200 rounded-lg shadow-sm" key={index}>
                                     <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{event.title}</h5>
@@ -404,9 +425,12 @@ const EventsPage = () => {
                                             <p className="font-normal text-gray-700">{formatDate(event.date)}</p>
                                         </div>
                                         <div className='flex gap-1'>
-                                            {event.participants.length > 0 && event.participants.map((participant) => participant.user === user._id) ? (
-                                                <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300">
-                                                    Already Participated
+                                            {event.participants.length > 0 && userParticipant ? (
+                                                <button className={`inline-flex capitalize items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg focus:ring-4 focus:outline-none 
+                                                    ${userParticipant.status === 'accepted' ? 'bg-green-600 hover:bg-green-700 focus:ring-green-300' :
+                                                        userParticipant.status === 'requested' ? 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-300' :
+                                                            'bg-red-600 hover:bg-red-700 focus:ring-red-300'}`}>
+                                                    {userParticipant.status}
                                                 </button>
                                             ) : (
                                                 <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
@@ -417,8 +441,8 @@ const EventsPage = () => {
                                                     </svg>
                                                 </button>
                                             )}
-                                            {event.participants.length > 0 && event.participants.some((participant) => participant.user === user._id && !participant.feedback) &&
-                                                <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-300"
+                                            {event.participants.length > 0 && !userParticipant.feedback && userParticipant.status === 'accepted' &&
+                                                <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-yellow-300"
                                                     onClick={() => handleFeedback(index)}>
                                                     Feedback
                                                 </button>
@@ -439,6 +463,9 @@ const EventsPage = () => {
                             )
                         })}
                     </div>
+                    {events.length === 0 && (
+                        <p className='text-center text-xl font-medium'>No events</p>
+                    )}
                 </div>
 
             )}

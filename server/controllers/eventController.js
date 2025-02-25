@@ -93,7 +93,7 @@ const eventFeedback = async (req, res) => {
     } else {
       event.participants.push({ user: data.userId, feedback: data.feedback, date: new Date() })
     }
-    
+
     await event.save()
     res.json({ msg: "Feedback added successfully!" });
   } catch (error) {
@@ -102,4 +102,29 @@ const eventFeedback = async (req, res) => {
   }
 }
 
-module.exports = { createEvent, getEvents, participateInEvent, generateEventReport, eventFeedback };
+const participantStatus = async (req, res) => {
+  const eventId = req.params.id
+  const { status, userId } = req.body
+  try {
+
+    const event = await Event.findOne({ _id: eventId })
+    if (!event) {
+      res.json({ msg: 'Event not found' })
+    }
+
+    const findEventIndex = event.participants.findIndex((participant) => participant.user.toString() === userId)
+    if (findEventIndex >= 0) {
+      event.participants[0].status = status
+    } else {
+      event.participants.push({ user: userId, status: status, date: new Date() })
+    }
+    await event.save()
+
+    res.json({ msg: "Participant status updated!", event });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+}
+
+module.exports = { createEvent, getEvents, participateInEvent, generateEventReport, eventFeedback, participantStatus };

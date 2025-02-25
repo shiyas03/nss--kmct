@@ -11,6 +11,10 @@ const ParticipantsSchema = new mongoose.Schema({
   },
   feedback: {
     type: String
+  },
+  status: {
+    type: String,
+    default: 'requested'
   }
 })
 
