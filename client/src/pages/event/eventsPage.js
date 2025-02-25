@@ -412,8 +412,9 @@ const EventsPage = () => {
             {user?.role === 'volunteer' && (
                 <div className="w-full">
                     <div className="w-full max-w-screen-xl mx-auto grid grid-cols-2 gap-10 py-20 h-fit">
-                        {events.map((event, index) => {
+                        {events.filter((event) => event.date >= user.date).map((event, index) => {
                             const userParticipant = event.participants.find((participant) => participant.user._id === user._id);
+                            const isEventOver = new Date(event.date) < new Date();
                             return (
                                 <div className="w-full h-fit p-6 bg-white border-2 border-gray-200 rounded-lg shadow-sm" key={index}>
                                     <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{event.title}</h5>
@@ -433,13 +434,19 @@ const EventsPage = () => {
                                                     {userParticipant.status}
                                                 </button>
                                             ) : (
-                                                <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
-                                                    onClick={() => handleParticipate(event._id)}>
-                                                    Participate
-                                                    <svg className="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
-                                                    </svg>
-                                                </button>
+                                                event.date < new Date() ? (
+                                                    <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-gray-600 rounded-lg cursor-not-allowed">
+                                                        Not Participated
+                                                    </button>
+                                                ) : (
+                                                    <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
+                                                        onClick={() => handleParticipate(event._id)}>
+                                                        Participate
+                                                        <svg className="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+                                                        </svg>
+                                                    </button>
+                                                )
                                             )}
                                             {event.participants.length > 0 && !userParticipant.feedback && userParticipant.status === 'accepted' &&
                                                 <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-yellow-300"
@@ -467,7 +474,6 @@ const EventsPage = () => {
                         <p className='text-center text-xl font-medium'>No events</p>
                     )}
                 </div>
-
             )}
         </main>
     )

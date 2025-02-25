@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import "./Contact.css";
 import NavBar from '../../components/nav-bar/NavBar';
 import API from '../../services/api';
+import Footer from '../../components/footer/Footer';
 
 const Contact = () => {
 
@@ -74,6 +75,7 @@ const Contact = () => {
           </div>
         </section>
       </div>
+      <Footer />
     </main>
   );
 };
