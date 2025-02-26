@@ -37,7 +37,7 @@ const NavBar = () => {
     <header className="bg-white">
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div className="flex lg:flex-1">
-          <a href="#" className="-m-1.5 p-1.5">
+          <a href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Your Company</span>
             <img className="h-20 w-auto" src="https://i.pinimg.com/736x/aa/1f/64/aa1f64fe760fc84fc4bd5f8f45cc8276.jpg" />
           </a>
@@ -78,7 +78,7 @@ const NavBar = () => {
 
           {user?.role === "programOfficer" && (
             <>
-              <Link to="/po-dashboard" className="text-sm font-semibold text-gray-900">
+              <Link to="/dashboard" className="text-sm font-semibold text-gray-900">
                 Dashboard
               </Link>
               <Link to="/volunteers" className="text-sm font-semibold text-gray-900">

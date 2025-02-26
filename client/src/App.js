@@ -11,7 +11,6 @@ import ActivitiesPage from './pages/activities/activities';
 import EventsPage from './pages/event/eventsPage';
 import VolunteersPage from './pages/volunteers/volunteers';
 import ProgramOfficersPage from './pages/program-officers/programOfficers';
-import PoDashboardPage from './pages/po-dashboard/poDashboard';
 import DashboardPage from './pages/dashboard/dashboard';
 import SetPassword from './pages/password/setPassword';
 import ProfilePage from './pages/profile/profile';
@@ -31,7 +30,6 @@ function App() {
         <Route path="/activities" element={<ActivitiesPage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/po-dashboard" element={<PoDashboardPage />} />
         <Route path="/volunteers" element={<VolunteersPage />} />
         <Route path="/program-officers" element={<ProgramOfficersPage />} />
         <Route path="/set-password" element={<SetPassword />} />

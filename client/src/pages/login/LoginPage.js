@@ -19,7 +19,7 @@ const LoginPage = () => {
       const response = await API.post('/auth/login', formData);
       if (response.data) {
         localStorage.setItem('token', response.data.token)
-        response.data.role === 'admin' ? navigate('/dashboard') : response.data.role === 'programOfficer' ? navigate('/po-dashboard') : navigate('/')
+        response.data.role === 'admin' ? navigate('/dashboard') : response.data.role === 'programOfficer' ? navigate('/dashboard') : navigate('/')
       }
     } catch (error) {
       console.error('Login failed:', error.response?.data?.msg || error.message);

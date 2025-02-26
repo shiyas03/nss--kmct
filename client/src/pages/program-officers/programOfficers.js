@@ -41,7 +41,7 @@ const ProgramOfficersPage = () => {
         <main>
             <NavBar />
             <div className="w-full max-w-screen-xl relative overflow-x-auto mx-auto">
-                <h1 className='font-bold text-2xl pt-10 pb-5 text-center'>Volunteers List</h1>
+                <h1 className='font-bold text-2xl pt-10 pb-5 text-center'>Program Officer List</h1>
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500 border">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr className='border-b'>
