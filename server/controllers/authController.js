@@ -61,7 +61,7 @@ const login = async (req, res) => {
     if (user.status === 'requested') {
       return res.status(400).json({ msg: 'Your account is not approved yet!' });
     } else if (user.status === 'rejected') {
-      return res.status(400).json({ msg: 'Your account is rejected!' });
+      return res.status(400).json({ msg: 'Your account is rejected, contact admin!' });
     } else {
       if (!user.password) {
         return res.status(400).json({ msg: 'Create password!' });

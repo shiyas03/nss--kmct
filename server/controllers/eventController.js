@@ -3,9 +3,25 @@ const User = require('../models/user');
 
 // Create a new event
 const createEvent = async (req, res) => {
-  const { title, location, organizer, date, description } = req.body;
+  const { _id, title, location, organizer, date, description } = req.body;
 
   try {
+
+    if (_id) {
+      const event = await Event.findOneAndUpdate({ _id: _id },
+        {
+          $set: {
+            title,
+            description,
+            date,
+            location,
+            organizer
+          }
+        }, { new: true }).populate('organizer', 'name').populate('participants.user', 'name email')
+
+      return res.json({ update: event, msg: 'event updated' })
+    }
+
     const event = new Event({
       title,
       description,
@@ -14,9 +30,9 @@ const createEvent = async (req, res) => {
       organizer
     });
 
-    await event.save();
+    // await event.save();
     const newEvent = await Event.findById(event._id).populate('organizer', 'name');
-    res.json({ event: newEvent });
+    res.json({ event: newEvent, msg: 'Event created successfully' });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
@@ -89,7 +105,7 @@ const eventFeedback = async (req, res) => {
 
     const findEventIndex = event.participants.findIndex((participant) => participant.user.toString() === data.userId)
     if (findEventIndex >= 0) {
-      event.participants[0].feedback = data.feedback
+      event.participants[findEventIndex].feedback = data.feedback
     } else {
       event.participants.push({ user: data.userId, feedback: data.feedback, date: new Date() })
     }
@@ -106,15 +122,16 @@ const participantStatus = async (req, res) => {
   const eventId = req.params.id
   const { status, userId } = req.body
   try {
-
-    const event = await Event.findOne({ _id: eventId })
+    const event = await Event.findOne({ _id: eventId }).populate('organizer', 'name').populate('participants', 'name');
     if (!event) {
       res.json({ msg: 'Event not found' })
     }
 
     const findEventIndex = event.participants.findIndex((participant) => participant.user.toString() === userId)
+    console.log(findEventIndex);
+
     if (findEventIndex >= 0) {
-      event.participants[0].status = status
+      event.participants[findEventIndex].status = status
     } else {
       event.participants.push({ user: userId, status: status, date: new Date() })
     }

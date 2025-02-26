@@ -8,16 +8,16 @@ const EventsPage = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [user, setUser] = useState(null);
 
-    useEffect(() => {
-        const fetchEvents = async () => {
-            try {
-                const response = await API.get('/events');
-                setEvents(response.data);
-            } catch (error) {
-                console.error('Failed to fetch events:', error.response?.data?.msg || error.message);
-            }
-        };
+    const fetchEvents = async () => {
+        try {
+            const response = await API.get('/events');
+            setEvents(response.data);
+        } catch (error) {
+            console.error('Failed to fetch events:', error.response?.data?.msg || error.message);
+        }
+    };
 
+    useEffect(() => {
         fetchEvents();
 
         const fetchUser = async () => {
@@ -61,6 +61,7 @@ const EventsPage = () => {
     };
 
     const initialState = {
+        _id: null,
         title: '',
         location: '',
         organizer: '',
@@ -79,11 +80,17 @@ const EventsPage = () => {
         e.preventDefault();
         try {
             const response = await API.post('/events/new-event', formData);
-            if (response.data) {
-                setEvents([...events, response.data.event]);
+            if (response.data.event) {
+                setEvents([response.data.event, ...events]);
             }
+
+            if (response.data.update) {
+                const index = events.findIndex((event) => event._id === selectedEvent._id)
+                events.splice(index, 1, response.data.update);
+            }
+
+            alert(response.data.msg);
             setDropdown(false)
-            alert('Event created successfully');
             setFormData(initialState);
         } catch (error) {
             console.error('Registration failed:', error.response?.data?.msg || error.message);
@@ -147,8 +154,22 @@ const EventsPage = () => {
         const response = await API.put(`/events/participant/${eventId}`, data);
         if (response.data) {
             alert(response.data.msg)
-            setSelectedEvent(response.data.event)
+            setModalList(false);
+            fetchEvents()
         }
+    }
+
+    const handleEditEvent = async (event, index) => {
+        setSelectedEvent(events[index])
+        setFormData({
+            _id: event._id,
+            title: event.title,
+            location: event.location,
+            organizer: event.organizer._id,
+            date: new Date(event.date).toISOString().split("T")[0],
+            description: event.description,
+        })
+        handleDropdown()
     }
 
     return (
@@ -188,6 +209,9 @@ const EventsPage = () => {
                                     <th scope="col" className="px-6 py-3">
                                         Feedbacks
                                     </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Action
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -226,6 +250,14 @@ const EventsPage = () => {
                                                 Feedbacks
                                             </button>
                                         </td>
+                                        <td className="px-6 py-4">
+                                            <button className="flex gap-1 hover:underline"
+                                                onClick={() => handleEditEvent(event, index)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                                </svg>
+                                                Edit
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                                 {events.length === 0 &&
@@ -257,9 +289,9 @@ const EventsPage = () => {
                                     <div className="p-4 md:p-5">
                                         <form className="space-y-6" onSubmit={handleSubmit}>
                                             <div>
-                                                <label for="title" className="block text-sm/6 font-medium text-gray-900">Title</label>
+                                                <label htmlFor="title" className="block text-sm/6 font-medium text-gray-900">Title</label>
                                                 <div className="mt-2">
-                                                    <input type="text" name="title" id="title" autocomplete="title" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
+                                                    <input type="text" name="title" id="title" autoComplete="title" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
                                                         placeholder="Title"
                                                         value={formData.title}
                                                         onChange={handleChange}
@@ -268,9 +300,9 @@ const EventsPage = () => {
                                             </div>
 
                                             <div>
-                                                <label for="location" className="block text-sm/6 font-medium text-gray-900">location</label>
+                                                <label htmlFor="location" className="block text-sm/6 font-medium text-gray-900">location</label>
                                                 <div className="mt-2">
-                                                    <input type="text" name="location" id="location" autocomplete="location" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
+                                                    <input type="text" name="location" id="location" autoComplete="location" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
                                                         placeholder="location"
                                                         value={formData.location}
                                                         onChange={handleChange}
@@ -280,12 +312,12 @@ const EventsPage = () => {
 
                                             <div className='flex gap-2'>
                                                 <div className='w-full'>
-                                                    <label for="organizer" className="block text-sm/6 font-medium text-gray-900">Organizer</label>
+                                                    <label htmlFor="organizer" className="block text-sm/6 font-medium text-gray-900">Organizer</label>
                                                     <div className="mt-2">
                                                         <select id="organizer" className="block w-full rounded-md bg-white px-3 py-2.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
                                                             value={formData.organizer}
                                                             onChange={handleChange}>
-                                                            <option value="" selected>Choose a officer</option>
+                                                            <option value="">Choose a officer</option>
                                                             {
                                                                 users.map((user, index) => {
                                                                     return (
@@ -298,9 +330,9 @@ const EventsPage = () => {
                                                 </div>
 
                                                 <div className='w-full'>
-                                                    <label for="date" className="block text-sm/6 font-medium text-gray-900">date</label>
+                                                    <label htmlFor="date" className="block text-sm/6 font-medium text-gray-900">date</label>
                                                     <div className="mt-2">
-                                                        <input type="date" name="date" id="date" autocomplete="date" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
+                                                        <input type="date" name="date" id="date" autoComplete="date" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
                                                             placeholder="date"
                                                             value={formData.date}
                                                             onChange={handleChange}
@@ -310,7 +342,7 @@ const EventsPage = () => {
                                             </div>
 
                                             <div>
-                                                <label for="description" className="block text-sm/6 font-medium text-gray-900">description</label>
+                                                <label htmlFor="description" className="block text-sm/6 font-medium text-gray-900">description</label>
                                                 <div className="mt-2">
                                                     <textarea id="description" rows="4" className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2" placeholder="Write description here..."
                                                         value={formData.description}
@@ -414,7 +446,6 @@ const EventsPage = () => {
                     <div className="w-full max-w-screen-xl mx-auto grid grid-cols-2 gap-10 py-20 h-fit">
                         {events.filter((event) => event.date >= user.date).map((event, index) => {
                             const userParticipant = event.participants.find((participant) => participant.user._id === user._id);
-                            const isEventOver = new Date(event.date) < new Date();
                             return (
                                 <div className="w-full h-fit p-6 bg-white border-2 border-gray-200 rounded-lg shadow-sm" key={index}>
                                     <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{event.title}</h5>
@@ -448,7 +479,7 @@ const EventsPage = () => {
                                                     </button>
                                                 )
                                             )}
-                                            {event.participants.length > 0 && !userParticipant.feedback && userParticipant.status === 'accepted' &&
+                                            {event.participants.length > 0 && !userParticipant?.feedback && userParticipant?.status === 'accepted' &&
                                                 <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-yellow-300"
                                                     onClick={() => handleFeedback(index)}>
                                                     Feedback
@@ -458,8 +489,8 @@ const EventsPage = () => {
                                     </div>
                                     {feedbackFrom === index && (
                                         <form onSubmit={() => handleFeedbackSubmit(event._id)}>
-                                            <label for="message" class="block mb-2 text-sm font-medium text-gray-900">Your Feedback</label>
-                                            <textarea id="message" rows="4" class="block p-2.5 w-full mb-3 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                            <label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-900">Your Feedback</label>
+                                            <textarea id="message" rows="4" className="block p-2.5 w-full mb-3 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 outline-none"
                                                 onChange={(e) => setFeedback(e.target.value)}
                                                 value={feedback}
                                                 placeholder="Write your feedback here..."></textarea>

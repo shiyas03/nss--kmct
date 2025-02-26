@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../services/api';
+import { useSearchParams } from "react-router-dom";
 
 const SetPassword = () => {
-
+    const [searchParams] = useSearchParams();
+    const email = searchParams.get("email");
     const [formData, setFormData] = useState({
-        email: '',
+        email: '' || email,
         password: '',
-        cpassword: ''
+        cpassword: '' 
     });
     const navigate = useNavigate();
 
@@ -18,7 +20,7 @@ const SetPassword = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            if(formData.password !== formData.cpassword){
+            if (formData.password !== formData.cpassword) {
                 return alert('Password and Confirm Password should be same!')
             }
             const response = await API.post('/users/set-password', formData);

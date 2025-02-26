@@ -13,7 +13,7 @@ router.put('/approve', auth, updateUserRequest);
 
 router.post('/new-volunteer', auth, NewVolunteer)
 
-router.get('/verify/:email', auth, VerifyVolunteer)
+router.get('/verify/:email', VerifyVolunteer)
 
 router.post('/set-password', auth, NewPassword)
 

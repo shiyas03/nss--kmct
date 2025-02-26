@@ -5,7 +5,7 @@ const Feedback = require('../models/feedback');
 
 const getVolunteers = async (req, res) => {
   try {
-    const volunteers = await User.find({ role: 'volunteer' }).select('-password').sort({ date: -1 });
+    const volunteers = await User.find({ role: 'volunteer' }).sort({ date: -1 });
     res.json(volunteers);
   } catch (err) {
     console.error(err.message);
@@ -15,7 +15,7 @@ const getVolunteers = async (req, res) => {
 
 const getProgramOfficers = async (req, res) => {
   try {
-    const programOfficers = await User.find({ role: 'programOfficer' }).select('-password').sort({ date: 1 });
+    const programOfficers = await User.find({ role: 'programOfficer' }).sort({ date: -1 });
     res.json(programOfficers);
   } catch (err) {
     console.error(err.message);
@@ -97,7 +97,7 @@ const VerifyVolunteer = async (req, res) => {
       return res.status(404).json({ msg: 'User not found' });
     }
 
-    res.redirect(`${process.env.CLIENT_URL}/set-password`);
+    res.redirect(`${process.env.CLIENT_URL}/set-password?email=${encodeURIComponent(user.email)}`);
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Server error');

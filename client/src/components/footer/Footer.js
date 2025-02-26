@@ -3,18 +3,18 @@ import "./Footer.css";
 
 const Footer = () => {
   return (
-    <footer class="flex flex-col space-y-10 justify-center m-10 bg-gray-50 py-10">
+    <footer className="flex flex-col space-y-10 justify-center m-10 bg-gray-50 py-10">
 
-      <nav class="flex justify-center flex-wrap gap-6 text-gray-500 font-medium">
-        <a class="hover:text-gray-900" href="#">Home</a>
-        <a class="hover:text-gray-900" href="#">About</a>
-        <a class="hover:text-gray-900" href="#">Events</a>
-        <a class="hover:text-gray-900" href="#">Activities</a>
-        <a class="hover:text-gray-900" href="#">Donate</a>
-        <a class="hover:text-gray-900" href="#">Contact</a>
+      <nav className="flex justify-center flex-wrap gap-6 text-gray-500 font-medium">
+        <a className="hover:text-gray-900" href="#">Home</a>
+        <a className="hover:text-gray-900" href="#">About</a>
+        <a className="hover:text-gray-900" href="#">Events</a>
+        <a className="hover:text-gray-900" href="#">Activities</a>
+        <a className="hover:text-gray-900" href="#">Donate</a>
+        <a className="hover:text-gray-900" href="#">Contact</a>
       </nav>
 
-      <div class="flex justify-center space-x-5">
+      <div className="flex justify-center space-x-5">
         <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
           <img src="https://img.icons8.com/fluent/30/000000/facebook-new.png" />
         </a>
@@ -31,7 +31,7 @@ const Footer = () => {
           <img src="https://img.icons8.com/fluent/30/000000/twitter.png" />
         </a>
       </div>
-      <p class="text-center text-gray-700 font-medium">&copy; 2025. All rights reservered.</p>
+      <p className="text-center text-gray-700 font-medium">&copy; 2025. All rights reservered.</p>
     </footer>
   );
 };

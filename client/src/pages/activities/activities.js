@@ -16,24 +16,24 @@ const ActivitiesPage = () => {
           </p>
         </div>
 
-        <div class="columns-1 md:columns-2 xl:columns-3 gap-7">
-          <div class=" break-inside-avoid mb-8">
-            <img class="h-auto max-w-full rounded-lg" src="https://www.kmctartskuttippuram.org/images/student-events/image1image1c84151281392e0a80ff3c2d90188f77b694ec199.jpeg" alt="Gallery image" />
+        <div className="columns-1 md:columns-2 xl:columns-3 gap-7">
+          <div className=" break-inside-avoid mb-8">
+            <img className="h-auto max-w-full rounded-lg" src="https://www.kmctartskuttippuram.org/images/student-events/image1image1c84151281392e0a80ff3c2d90188f77b694ec199.jpeg" alt="Gallery image" />
           </div>
-          <div class=" break-inside-avoid  mb-8">
-            <img class="h-auto max-w-full rounded-lg" src="https://www.kmctartskuttippuram.org/images/student-events/image1image173f0a81dba6285578283947427577eb71dc0cd4f.jpeg" alt="Gallery image" />
+          <div className=" break-inside-avoid  mb-8">
+            <img className="h-auto max-w-full rounded-lg" src="https://www.kmctartskuttippuram.org/images/student-events/image1image173f0a81dba6285578283947427577eb71dc0cd4f.jpeg" alt="Gallery image" />
           </div>
-          <div class=" break-inside-avoid  mb-8">
-            <img class="h-auto max-w-full rounded-lg" src="https://www.kmctartskuttippuram.org/images/student-events/image1image11f6bdad53eaa396a4b6890d19054133756d04554.jpeg" alt="Gallery image" />
+          <div className=" break-inside-avoid  mb-8">
+            <img className="h-auto max-w-full rounded-lg" src="https://www.kmctartskuttippuram.org/images/student-events/image1image11f6bdad53eaa396a4b6890d19054133756d04554.jpeg" alt="Gallery image" />
           </div>
-          <div class=" break-inside-avoid  mb-8">
-            {/* <img class="h-auto max-w-full rounded-lg" src="" alt="Gallery image" /> */}
+          <div className=" break-inside-avoid  mb-8">
+            {/* <img className="h-auto max-w-full rounded-lg" src="" alt="Gallery image" /> */}
           </div>
-          <div class=" break-inside-avoid  mb-8">
-            <img class="h-auto max-w-full rounded-lg" src="https://www.kmctartskuttippuram.org/images/student-events/image1image1e59f24c8d7ac90d4152c0d05ea824d664f11acb5.jpg" alt="Gallery image" />
+          <div className=" break-inside-avoid  mb-8">
+            <img className="h-auto max-w-full rounded-lg" src="https://www.kmctartskuttippuram.org/images/student-events/image1image1e59f24c8d7ac90d4152c0d05ea824d664f11acb5.jpg" alt="Gallery image" />
           </div>
-          <div class=" break-inside-avoid  mb-8">
-            <img class="h-auto max-w-full rounded-lg" src="https://www.kmctartskuttippuram.org/images/student-events/image1image194421c8158c90914a4d887f6b61249c904128f25.jpg" alt="Gallery image" />
+          <div className=" break-inside-avoid  mb-8">
+            <img className="h-auto max-w-full rounded-lg" src="https://www.kmctartskuttippuram.org/images/student-events/image1image194421c8158c90914a4d887f6b61249c904128f25.jpg" alt="Gallery image" />
           </div>
         </div>
       </section>
