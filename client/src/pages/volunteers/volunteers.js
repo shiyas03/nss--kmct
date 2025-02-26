@@ -175,7 +175,7 @@ const VolunteersPage = () => {
                             <div className="p-4 md:p-5">
                                 <form className="space-y-6" onSubmit={handleSubmit}>
                                     <div>
-                                        <label for="name" className="block text-sm/6 font-medium text-gray-900">Name</label>
+                                        <label htmlFor="name" className="block text-sm/6 font-medium text-gray-900">Name</label>
                                         <div className="mt-2">
                                             <input type="text" name="name" id="name" autocomplete="name" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
                                                 placeholder="John doe"
@@ -186,7 +186,7 @@ const VolunteersPage = () => {
                                     </div>
 
                                     <div>
-                                        <label for="email" className="block text-sm/6 font-medium text-gray-900">Email</label>
+                                        <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">Email</label>
                                         <div className="mt-2">
                                             <input type="email" name="email" id="email" autocomplete="current-email" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
                                                 placeholder="johndoe@gmail.com"
@@ -197,7 +197,7 @@ const VolunteersPage = () => {
                                     </div>
 
                                     <div>
-                                        <label for="mobile" className="block text-sm/6 font-medium text-gray-900">Mobile Number</label>
+                                        <label htmlFor="mobile" className="block text-sm/6 font-medium text-gray-900">Mobile Number</label>
                                         <div className="mt-2">
                                             <input type="text" name="mobile" id="mobile" autocomplete="mobile" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
                                                 placeholder="+91 1234567890"

@@ -15,7 +15,7 @@ router.post('/new-volunteer', auth, NewVolunteer)
 
 router.get('/verify/:email', VerifyVolunteer)
 
-router.post('/set-password', auth, NewPassword)
+router.post('/set-password', NewPassword)
 
 router.post('/reset-password/:userId', auth, ResetPassword)
 

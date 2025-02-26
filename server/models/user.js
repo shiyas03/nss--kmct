@@ -31,6 +31,18 @@ const UserSchema = new mongoose.Schema({
   date: {
     type: Date,
     default: new Date()
+  },
+  image: {
+    type: String,
+  },
+  dob: {
+    type: Date,
+  },
+  department: {
+    type: String,
+  },
+  adminYear: {
+    type: String,
   }
 });
 

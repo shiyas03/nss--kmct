@@ -146,15 +146,15 @@ const ResetPassword = async (req, res) => {
 const EditUser = async (req, res) => {
   try {
 
-    const { name, email, mobile } = req.body
+    const { name, email, mobile, department, dob, adminYear } = req.body
     const userId = req.params.id
 
-    const user = await User.findOneAndUpdate({ _id: userId }, { $set: { name, email, mobile } })
+    const user = await User.findOneAndUpdate({ _id: userId }, { $set: { name, email, mobile, department, dob, adminYear } }, { new: true })
     if (!user) {
       return res.json({ msg: 'User not found' })
     }
 
-    res.json({ msg: 'User updated' })
+    res.json({ msg: 'User updated', user })
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Server error');
