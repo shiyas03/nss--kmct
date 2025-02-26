@@ -465,7 +465,7 @@ const EventsPage = () => {
                                                     {userParticipant.status}
                                                 </button>
                                             ) : (
-                                                event.date < new Date() ? (
+                                                new Date(event.date) < new Date() ? (
                                                     <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-gray-600 rounded-lg cursor-not-allowed">
                                                         Not Participated
                                                     </button>

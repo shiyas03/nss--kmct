@@ -30,7 +30,7 @@ const createEvent = async (req, res) => {
       organizer
     });
 
-    // await event.save();
+    await event.save();
     const newEvent = await Event.findById(event._id).populate('organizer', 'name');
     res.json({ event: newEvent, msg: 'Event created successfully' });
   } catch (err) {

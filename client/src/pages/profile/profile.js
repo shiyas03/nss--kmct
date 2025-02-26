@@ -1,7 +1,6 @@
 import NavBar from "../../components/nav-bar/NavBar";
 import React, { useState, useEffect } from 'react';
 import API from '../../services/api';
-import { useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
     const [user, setUser] = useState(null);
@@ -22,13 +21,16 @@ const ProfilePage = () => {
         fetchUser();
     }, []);
 
-    const [formData, setFormData] = useState({
-        name: '',
-        email:'',
-        mobile: '',
-    });
 
-    const navigate = useNavigate();
+    const initialForm = {
+        name: '',
+        email: '',
+        mobile: '',
+        password: '',
+        cpassword: '',
+    }
+
+    const [formData, setFormData] = useState(initialForm);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -44,7 +46,7 @@ const ProfilePage = () => {
                 user.mobile = formData.mobile;
                 alert(response.data.msg)
                 handleTabChange('profile')
-                setFormData(null)
+                setFormData(initialForm)
             }
         } catch (error) {
             console.error('Login failed:', error.response?.data?.msg || error.message);
@@ -55,9 +57,11 @@ const ProfilePage = () => {
     const [tab, setTabs] = useState('profile')
     const handleTabChange = (tab) => {
         setTabs(tab)
-        formData.name = user.name
-        formData.email = user.email
-        formData.mobile = user.mobile
+        if (formData) {
+            formData.name = user.name
+            formData.email = user.email
+            formData.mobile = user.mobile
+        }
     }
 
     const handleSubmit = async (e) => {
@@ -69,8 +73,9 @@ const ProfilePage = () => {
             const response = await API.post(`/users/reset-password/${user._id}`, formData);
             if (response.data) {
                 alert(response.data.msg)
-                navigate('/profile')
+                setTabs('reset')
             }
+            setFormData(initialForm)
         } catch (error) {
             console.error('Login failed:', error.response?.data?.msg || error.message);
             alert(error.response?.data?.msg)
@@ -162,7 +167,7 @@ const ProfilePage = () => {
 
                     {tab === 'edit' && (
                         <div className="border-2">
-                           <div className="flex justify-between border-b p-3">
+                            <div className="flex justify-between border-b p-3">
                                 <p className="text-xl font-medium">Edit Informations</p>
                                 <button className="px-4 py-2 bg-gray-400 text-white rounded-lg flex gap-1 items-center focus:ring-4 focus:ring-gray-300"
                                     onClick={() => handleTabChange('profile')}>
