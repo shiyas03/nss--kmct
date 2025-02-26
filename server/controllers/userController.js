@@ -180,7 +180,6 @@ const userFeedback = async (req, res) => {
 
 const getFeedback = async (req, res) => {
   try {
-    console.log('working');
     const feedbacks = await Feedback.find().sort({ date: -1 })
     res.json({ feedbacks })
   } catch (error) {

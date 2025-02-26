@@ -128,7 +128,6 @@ const participantStatus = async (req, res) => {
     }
 
     const findEventIndex = event.participants.findIndex((participant) => participant.user.toString() === userId)
-    console.log(findEventIndex);
 
     if (findEventIndex >= 0) {
       event.participants[findEventIndex].status = status
