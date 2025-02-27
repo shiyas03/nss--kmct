@@ -98,7 +98,7 @@ const ProfilePage = () => {
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         setFile(selectedFile);
-        setPreview(URL.createObjectURL(selectedFile)); // Show preview
+        setPreview(URL.createObjectURL(selectedFile));
     };
 
     const handleUpload = async () => {
@@ -111,7 +111,7 @@ const ProfilePage = () => {
         formData.append('file', file);
 
         try {
-            const response = await axios.post(`http://localhost:5000/upload/${user._id}`, formData, {
+            const response = await axios.post(`http://localhost:5000/upload/user/${user._id}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             alert(response.data.message);

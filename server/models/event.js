@@ -41,6 +41,9 @@ const EventSchema = new mongoose.Schema({
     required: true,
   },
   participants: [ParticipantsSchema],
+  image: {
+    type: String,
+  }
 });
 
 module.exports = mongoose.model('Event', EventSchema);

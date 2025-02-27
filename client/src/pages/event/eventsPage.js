@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../services/api';
 import NavBar from '../../components/nav-bar/NavBar';
+import axios from 'axios';
 
 const EventsPage = () => {
 
     const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [user, setUser] = useState(null);
+    const [file, setFile] = useState(null);
+    const [preview, setPreview] = useState(null);
 
     const fetchEvents = async () => {
         try {
@@ -67,6 +70,7 @@ const EventsPage = () => {
         organizer: '',
         date: '',
         description: '',
+        image: '',
     };
 
     const [formData, setFormData] = useState(initialState);
@@ -79,21 +83,39 @@ const EventsPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            if (!file) {
+                alert('Please select a file first.');
+                return;
+            }
+
             const response = await API.post('/events/new-event', formData);
+
+            const fileFormData = new FormData();
+            fileFormData.append('file', file);
+
             if (response.data.event) {
+                const res = await axios.post(`http://localhost:5000/upload/event/${response.data.event._id}`, fileFormData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                response.data.event.image = res.data.fileName
                 setEvents([response.data.event, ...events]);
             }
 
             if (response.data.update) {
+                const res = await axios.post(`http://localhost:5000/upload/event/${response.data.update._id}`, fileFormData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
                 const index = events.findIndex((event) => event._id === selectedEvent._id)
+                response.data.update.image = res.data.fileName
                 events.splice(index, 1, response.data.update);
             }
-
+            setFile(null);
+            setPreview(null);
             alert(response.data.msg);
             setDropdown(false)
             setFormData(initialState);
         } catch (error) {
-            console.error('Registration failed:', error.response?.data?.msg || error.message);
+            console.error('failed:', error.response?.data?.msg || error.message);
         }
     };
 
@@ -102,6 +124,11 @@ const EventsPage = () => {
     const handleDropdown = () => {
         fetchUsers()
         setDropdown(!dropdown);
+        if (dropdown === true) {
+            setFormData(initialState)
+            setFile(null)
+            setPreview(null)
+        }
     }
 
     const [feedbackFrom, setFeedbackForm] = useState(null);
@@ -168,8 +195,25 @@ const EventsPage = () => {
             organizer: event.organizer._id,
             date: new Date(event.date).toISOString().split("T")[0],
             description: event.description,
+            image: event.image,
         })
+        setPreview(`http://localhost:5000/uploads/${event.image}`)
         handleDropdown()
+    }
+
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        setFile(selectedFile);
+        if (selectedFile) {
+            setPreview(URL.createObjectURL(selectedFile));
+        }
+    };
+
+    const [imagePreview, setModal] = useState(false);
+
+    const handleImageModal = (index) => {
+        setModal(!imagePreview);
+        setSelectedEvent(events[index])
     }
 
     return (
@@ -208,6 +252,9 @@ const EventsPage = () => {
                                     </th>
                                     <th scope="col" className="px-6 py-3">
                                         Feedbacks
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Image
                                     </th>
                                     <th scope="col" className="px-6 py-3">
                                         Action
@@ -252,6 +299,15 @@ const EventsPage = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <button className="flex gap-1 hover:underline"
+                                                onClick={() => handleImageModal(index)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                </svg>
+                                                Preview
+                                            </button>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <button className="flex gap-1 hover:underline"
                                                 onClick={() => handleEditEvent(event, index)}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                                 </svg>
@@ -287,10 +343,10 @@ const EventsPage = () => {
                                     </div>
 
                                     <div className="p-4 md:p-5">
-                                        <form className="space-y-6" onSubmit={handleSubmit}>
+                                        <form className="space-y-2" onSubmit={handleSubmit}>
                                             <div>
                                                 <label htmlFor="title" className="block text-sm/6 font-medium text-gray-900">Title</label>
-                                                <div className="mt-2">
+                                                <div className="mt-1">
                                                     <input type="text" name="title" id="title" autoComplete="title" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
                                                         placeholder="Title"
                                                         value={formData.title}
@@ -301,7 +357,7 @@ const EventsPage = () => {
 
                                             <div>
                                                 <label htmlFor="location" className="block text-sm/6 font-medium text-gray-900">location</label>
-                                                <div className="mt-2">
+                                                <div className="mt-1">
                                                     <input type="text" name="location" id="location" autoComplete="location" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
                                                         placeholder="location"
                                                         value={formData.location}
@@ -313,7 +369,7 @@ const EventsPage = () => {
                                             <div className='flex gap-2'>
                                                 <div className='w-full'>
                                                     <label htmlFor="organizer" className="block text-sm/6 font-medium text-gray-900">Organizer</label>
-                                                    <div className="mt-2">
+                                                    <div className="mt-1">
                                                         <select id="organizer" className="block w-full rounded-md bg-white px-3 py-2.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
                                                             value={formData.organizer}
                                                             onChange={handleChange}>
@@ -331,7 +387,7 @@ const EventsPage = () => {
 
                                                 <div className='w-full'>
                                                     <label htmlFor="date" className="block text-sm/6 font-medium text-gray-900">date</label>
-                                                    <div className="mt-2">
+                                                    <div className="mt-1">
                                                         <input type="date" name="date" id="date" autoComplete="date" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2"
                                                             placeholder="date"
                                                             value={formData.date}
@@ -343,13 +399,27 @@ const EventsPage = () => {
 
                                             <div>
                                                 <label htmlFor="description" className="block text-sm/6 font-medium text-gray-900">description</label>
-                                                <div className="mt-2">
+                                                <div className="mt-1">
                                                     <textarea id="description" rows="4" className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 border-2" placeholder="Write description here..."
                                                         value={formData.description}
                                                         onChange={handleChange}></textarea>
                                                 </div>
                                             </div>
-
+                                            <label htmlFor="" className="block text-sm/6 font-medium text-gray-900 text-start">Image upload</label>
+                                            <div className="flex flex-col items-center justify-start w-full">
+                                                <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-28 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                                                    {preview ? <img src={preview} alt="Preview" className="w-full h-full object-cover rounded-lg" /> : (
+                                                        <div className="flex flex-col items-center justify-center pt-1 pb-1">
+                                                            <svg className="w-8 h-8 mb-1 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                                                            </svg>
+                                                            <p className="mb-1 text-sm text-gray-500"><span className="font-semibold">Click to upload</span> <br /> or drag and drop</p>
+                                                            <p className="text-xs text-gray-500">PNG, JPG (MAX. 2MB)</p>
+                                                        </div>
+                                                    )}
+                                                    <input id="dropzone-file" type="file" className="hidden" onChange={handleFileChange} required />
+                                                </label>
+                                            </div>
                                             <div>
                                                 <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Submit</button>
                                             </div>
@@ -438,57 +508,83 @@ const EventsPage = () => {
                             </div>
                         </div>
                     )}
+
+                    {imagePreview && (
+                        <div id="authentication-modal" aria-hidden="true" className="absolute z-50 flex justify-center items-center w-full h-screen top-0 backdrop-blur-sm">
+                            <div className="relative w-full max-w-md max-h-full">
+                                <div className='flex flex-col items-center gap-3'>
+                                    <button className='text-center' onClick={handleImageModal}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-8">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                    </svg>
+                                    </button>
+                                    <img src={`http://localhost:5000/uploads/${selectedEvent.image}`} alt="preview" />
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
             {user?.role === 'volunteer' && (
                 <div className="w-full">
-                    <div className="w-full max-w-screen-xl mx-auto grid grid-cols-2 gap-10 py-20 h-fit">
+                    <div className="w-full max-w-screen-xl mx-auto grid md:grid-cols-2 grid-cols-1 gap-10 py-20 h-fit">
                         {events.filter((event) => event.date >= user.date).map((event, index) => {
                             const userParticipant = event.participants.find((participant) => participant.user._id === user._id);
                             return (
-                                <div className="w-full h-fit p-6 bg-white border-2 border-gray-200 rounded-lg shadow-sm" key={index}>
-                                    <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{event.title}</h5>
-                                    <p className="mb-3 font-normal text-gray-700">{event.description}</p>
-                                    <div className="flex justify-between items-end mb-3">
-                                        <div>
-                                            <p className="font-normal text-gray-700">Organizer: {event.organizer.name}</p>
-                                            <p className="font-normal text-gray-700">Location: {event.location}</p>
-                                            <p className="font-normal text-gray-700">{formatDate(event.date)}</p>
-                                        </div>
-                                        <div className='flex gap-1'>
-                                            {event.participants.length > 0 && userParticipant ? (
-                                                <button className={`inline-flex capitalize items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg focus:ring-4 focus:outline-none 
+                                <div key={index} className="flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm md:max-w-xl hover:bg-gray-100">
+                                    <div>
+                                        <div className='flex'>
+                                            <img className="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg" src={`http://localhost:5000/uploads/${event.image}`} alt="" />
+                                            <div className="w-full flex flex-col justify-between mb-3">
+                                                <div className="flex flex-col p-4 leading-normal">
+                                                    <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{event.title}</h5>
+                                                    <p className="mb-3 font-normal text-gray-700">{event.description}</p>
+                                                </div>
+                                                <div className='p-4'>
+                                                    <p className="font-normal text-gray-700">Organizer: <span className='font-medium'>{event.organizer.name}</span></p>
+                                                    <p className="font-normal text-gray-700">Location: <span className='font-medium'> {event.location}</span></p>
+                                                    <p className="font-normal text-gray-700">Date: <span className='font-medium'>{formatDate(event.date)}</span></p>
+                                                </div>
+                                                <div className='w-fit flex gap-1 px-4'>
+                                                    {event.participants.length > 0 && userParticipant ? (
+                                                        <button className={`inline-flex capitalize items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg focus:ring-4 focus:outline-none 
                                                     ${userParticipant.status === 'accepted' ? 'bg-green-600 hover:bg-green-700 focus:ring-green-300' :
-                                                        userParticipant.status === 'requested' ? 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-300' :
-                                                            'bg-red-600 hover:bg-red-700 focus:ring-red-300'}`}>
-                                                    {userParticipant.status}
-                                                </button>
-                                            ) : (
-                                                new Date(event.date) < new Date() ? (
-                                                    <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-gray-600 rounded-lg cursor-not-allowed">
-                                                        Not Participated
-                                                    </button>
-                                                ) : (
-                                                    <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
-                                                        onClick={() => handleParticipate(event._id)}>
-                                                        Participate
-                                                        <svg className="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
-                                                        </svg>
-                                                    </button>
-                                                )
-                                            )}
-                                            {event.participants.length > 0 && !userParticipant?.feedback && userParticipant?.status === 'accepted' &&
-                                                <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-yellow-300"
-                                                    onClick={() => handleFeedback(index)}>
-                                                    Feedback
-                                                </button>
-                                            }
+                                                                userParticipant.status === 'requested' ? 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-300' :
+                                                                    'bg-red-600 hover:bg-red-700 focus:ring-red-300'}`}>
+                                                            {userParticipant.status}
+                                                        </button>
+                                                    ) : (
+                                                        new Date(event.date) < new Date() ? (
+                                                            <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-gray-600 rounded-lg cursor-not-allowed">
+                                                                Not Participated
+                                                            </button>
+                                                        ) : (
+                                                            <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
+                                                                onClick={() => handleParticipate(event._id)}>
+                                                                Participate
+                                                                <svg className="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+                                                                </svg>
+                                                            </button>
+                                                        )
+                                                    )}
+                                                    {event.participants.length > 0 && !userParticipant?.feedback && userParticipant?.status === 'accepted' &&
+                                                        <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-yellow-300"
+                                                            onClick={() => handleFeedback(index)}>
+                                                            Feedback
+                                                        </button>
+                                                    }
+                                                    {event.participants.length > 0 && userParticipant?.feedback && userParticipant?.status === 'accepted' &&
+                                                        <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-rose-600 rounded-lg hover:bg-rose-700 focus:ring-4 focus:outline-none focus:ring-yellow-300">
+                                                            Feedback Updated
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     {feedbackFrom === index && (
-                                        <form onSubmit={() => handleFeedbackSubmit(event._id)}>
+                                        <form onSubmit={() => handleFeedbackSubmit(event._id)} className='p-4'>
                                             <label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-900">Your Feedback</label>
                                             <textarea id="message" rows="4" className="block p-2.5 w-full mb-3 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 outline-none"
                                                 onChange={(e) => setFeedback(e.target.value)}
